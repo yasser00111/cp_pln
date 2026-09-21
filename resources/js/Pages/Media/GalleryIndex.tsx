@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Gallery } from '@/Types';
 import { Image as ImageIcon, Eye, X } from 'lucide-react';
 
@@ -12,6 +12,7 @@ interface Props {
 
 export default function GalleryIndex({ galleries, categories, selectedCategory }: Props) {
   const [activeImage, setActiveImage] = useState<Gallery | null>(null);
+  const { globalCms } = usePage<any>().props;
 
   const handleFilter = (cat: string) => {
     router.get('/gallery', { category: cat }, { preserveState: true });
@@ -28,10 +29,10 @@ export default function GalleryIndex({ galleries, categories, selectedCategory }
             <span>GALERI FOTO</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Dokumentasi Kegiatan & Pembangkit
+            {globalCms?.media_gallery_title?.title || "Dokumentasi Foto"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Kumpulan dokumentasi foto operasional PLTU Barru, program lingkungan, CSR, dan event perusahaan.
+          <p className="text-sm text-slate-700 max-w-2xl leading-relaxed whitespace-pre-line">
+            {globalCms?.media_gallery_title?.body_text || "Kumpulan potret kegiatan, operasional, dan program CSR UBP Barru."}
           </p>
         </div>
       </section>

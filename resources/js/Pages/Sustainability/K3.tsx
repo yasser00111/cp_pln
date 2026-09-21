@@ -38,10 +38,10 @@ export default function K3({ safety }: Props) {
           <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-950 border border-emerald-500/30 space-y-4 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-2">
               <div className="text-xs font-bold text-emerald-400 uppercase tracking-widest">RECORD ACCIDENT FREE</div>
-              <div className="text-4xl sm:text-6xl font-extrabold text-slate-900 font-heading">
-                {safety?.zero_accident_days || 1480} <span className="text-xl sm:text-2xl text-emerald-400 font-bold">Hari Kerja Safe</span>
+              <div className="text-4xl sm:text-6xl font-extrabold text-white font-heading">
+                {usePage<any>().props.globalCms?.safety_record_days?.title || safety?.zero_accident_days || 1480} <span className="text-xl sm:text-2xl text-emerald-400 font-bold">Hari Kerja Safe</span>
               </div>
-              <p className="text-xs text-slate-700">Pencapaian Zero Accident berturut-turut tanpa kehilangan jam kerja.</p>
+              <p className="text-xs text-emerald-100/80">{usePage<any>().props.globalCms?.safety_record_days?.body_text || "Pencapaian Zero Accident berturut-turut tanpa kehilangan jam kerja."}</p>
             </div>
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-10 h-10" />

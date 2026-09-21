@@ -50,6 +50,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'appName' => config('app.name'),
             'globalCms' => fn () => \App\Models\Content::all()->keyBy('section_key'),
+            'settings' => fn () => \App\Models\Setting::all()->pluck('value', 'key'),
         ]);
     }
 }

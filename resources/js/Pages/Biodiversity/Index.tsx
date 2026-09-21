@@ -11,6 +11,7 @@ interface Props {
 }
 
 export default function Index({ species, program }: Props) {
+  const { settings } = usePage<any>().props;
   const [activeTab, setActiveTab] = useState<'All' | 'Flora' | 'Fauna'>('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -48,35 +49,35 @@ export default function Index({ species, program }: Props) {
           {/* Biodiversity Statistics Dashboard Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs">
-                34+
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_stat_1_badge || '34+'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Spesies Teridentifikasi</div>
-              <p className="text-xs text-slate-600">Flora mangrove & fauna perlindungan teridentifikasi.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_stat_1_title || 'Spesies Teridentifikasi'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_stat_1_desc || 'Flora mangrove & fauna perlindungan teridentifikasi.'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs">
-                14.5 Ha
+              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_stat_2_badge || '14.5 Ha'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Area Konservasi</div>
-              <p className="text-xs text-slate-600">Kawasan mangrove pesisir pantai Lampoko Barru.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_stat_2_title || 'Area Konservasi'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_stat_2_desc || 'Kawasan pesisir pantai Lampoko Barru.'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs">
-                50,000+
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_stat_3_badge || '50,000+'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Bibit Mangrove Ditanam</div>
-              <p className="text-xs text-slate-600">Penahan abrasi & penyerap emisi karbon alami.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_stat_3_title || 'Bibit Mangrove Ditanam'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_stat_3_desc || 'Penahan abrasi & penyerap emisi karbon alami.'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs">
-                100%
+              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_stat_4_badge || '100%'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Zero Loss Habitat</div>
-              <p className="text-xs text-slate-600">Pemantauan ekologis rutin bersama KLHK & BKSDA.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_stat_4_title || 'Zero Loss Habitat'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_stat_4_desc || 'Pemantauan ekologis rutin bersama KLHK & BKSDA.'}</p>
             </div>
           </div>
 

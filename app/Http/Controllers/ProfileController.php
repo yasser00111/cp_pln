@@ -34,11 +34,7 @@ class ProfileController extends Controller
         $misiRaw = CompanyProfile::where('key', 'misi')->first();
         $misi = $misiRaw ? json_decode($misiRaw->content, true) : [];
 
-        $contents = Content::whereIn('section_key', [
-            'profile_visi',
-            'profile_misi_1',
-            'profile_misi_2'
-        ])->get()->keyBy('section_key');
+        $contents = Content::all()->keyBy('section_key');
 
         return Inertia::render('Profile/VisiMisi', [
             'visi' => $visi,

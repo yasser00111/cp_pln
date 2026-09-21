@@ -1,9 +1,11 @@
 import React from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Users, HeartHandshake, Briefcase, GraduationCap, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function HumanCapital() {
+  const { globalCms } = usePage<any>().props;
+
   return (
     <MainLayout>
       <Head title="Human Capital Management & Work At PLN IP - UBP Barru" />
@@ -15,10 +17,10 @@ export default function HumanCapital() {
             <span>HUMAN CAPITAL MANAGEMENT</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Work at PLN Indonesia Power UBP Barru
+            {globalCms?.human_capital_hero?.title || "Work at PLN Indonesia Power UBP Barru"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Membangun SDM unggul, berdaya saing tinggi, dan berbudaya AKHLAK demi mengawal keandalan energi masa depan Indonesia.
+          <p className="text-sm text-slate-700 max-w-2xl leading-relaxed whitespace-pre-line">
+            {globalCms?.human_capital_hero?.body_text || "Membangun SDM unggul, berdaya saing tinggi, dan berbudaya AKHLAK demi mengawal keandalan energi masa depan Indonesia."}
           </p>
         </div>
       </section>
@@ -29,20 +31,20 @@ export default function HumanCapital() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-8 rounded-3xl bg-white border border-slate-200 space-y-3">
               <GraduationCap className="w-8 h-8 text-sky-400" />
-              <h3 className="text-lg font-bold text-slate-900 font-heading">Pengembangan Talenta Continuous Learning</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">Program sertifikasi keahlian spesialis pembangkitan, pelatihan K3, dan kepemimpinan berkelanjutan.</p>
+              <h3 className="text-lg font-bold text-slate-900 font-heading">{globalCms?.human_capital_card_1?.title || "Pengembangan Talenta Continuous Learning"}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{globalCms?.human_capital_card_1?.body_text || "Program sertifikasi keahlian spesialis pembangkitan, pelatihan K3, dan kepemimpinan berkelanjutan."}</p>
             </div>
 
             <div className="p-8 rounded-3xl bg-white border border-slate-200 space-y-3">
               <HeartHandshake className="w-8 h-8 text-emerald-400" />
-              <h3 className="text-lg font-bold text-slate-900 font-heading">Budaya Kerja AKHLAK</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">Amanah, Kompeten, Harmonis, Loyal, Adaptif, dan Kolaboratif menjadi fondasi etika insan UBP Barru.</p>
+              <h3 className="text-lg font-bold text-slate-900 font-heading">{globalCms?.human_capital_card_2?.title || "Budaya Kerja AKHLAK"}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{globalCms?.human_capital_card_2?.body_text || "Amanah, Kompeten, Harmonis, Loyal, Adaptif, dan Kolaboratif menjadi fondasi etika insan UBP Barru."}</p>
             </div>
 
             <div className="p-8 rounded-3xl bg-white border border-slate-200 space-y-3">
               <ShieldCheck className="w-8 h-8 text-sky-400" />
-              <h3 className="text-lg font-bold text-slate-900 font-heading">Kesejahteraan & Keselamatan</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">Pemberian jaminan kesehatan komprehensif serta penerapan Zero Accident dalam setiap aktivitas kerja.</p>
+              <h3 className="text-lg font-bold text-slate-900 font-heading">{globalCms?.human_capital_card_3?.title || "Kesejahteraan & Keselamatan"}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{globalCms?.human_capital_card_3?.body_text || "Pemberian jaminan kesehatan komprehensif serta penerapan Zero Accident dalam setiap aktivitas kerja."}</p>
             </div>
           </div>
 

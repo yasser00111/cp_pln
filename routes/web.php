@@ -99,6 +99,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // Hero Sliders CRUD
     Route::get('/sliders', [AdminDashboardController::class, 'slidersIndex'])->name('sliders');
     Route::post('/sliders', [AdminDashboardController::class, 'storeSlider'])->name('sliders.store');
+    Route::post('/sliders/{slider}', [AdminDashboardController::class, 'updateSlider'])->name('sliders.update');
     Route::post('/sliders/{slider}/toggle', [AdminDashboardController::class, 'toggleSlider'])->name('sliders.toggle');
     Route::delete('/sliders/{slider}', [AdminDashboardController::class, 'deleteSlider'])->name('sliders.delete');
 
@@ -112,19 +113,51 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/awards', [AdminDashboardController::class, 'storeAward'])->name('awards.store');
     Route::delete('/awards/{award}', [AdminDashboardController::class, 'deleteAward'])->name('awards.delete');
 
+    // Operational Statistics CRUD
+    Route::get('/statistics', [AdminDashboardController::class, 'statisticsIndex'])->name('statistics');
+    Route::post('/statistics', [AdminDashboardController::class, 'storeStatistic'])->name('statistics.store');
+    Route::post('/statistics/{statistic}', [AdminDashboardController::class, 'updateStatistic'])->name('statistics.update');
+    Route::delete('/statistics/{statistic}', [AdminDashboardController::class, 'deleteStatistic'])->name('statistics.delete');
+
     // Biodiversity Species CRUD
     Route::get('/biodiversity', [AdminDashboardController::class, 'biodiversityIndex'])->name('biodiversity');
     Route::post('/biodiversity', [AdminDashboardController::class, 'storeSpecies'])->name('biodiversity.store');
     Route::delete('/biodiversity/{species}', [AdminDashboardController::class, 'deleteSpecies'])->name('biodiversity.delete');
+
+    // Srikandi CRUD
+    Route::get('/srikandi', [AdminDashboardController::class, 'srikandiIndex'])->name('srikandi');
+    Route::post('/srikandi', [AdminDashboardController::class, 'storeSrikandi'])->name('srikandi.store');
+    Route::delete('/srikandi/{srikandi}', [AdminDashboardController::class, 'deleteSrikandi'])->name('srikandi.delete');
 
     // News & Messages
     Route::get('/news', [AdminDashboardController::class, 'newsIndex'])->name('news');
     Route::post('/news', [AdminDashboardController::class, 'storeNews'])->name('news.store');
     Route::delete('/news/{news}', [AdminDashboardController::class, 'deleteNews'])->name('news.delete');
     
+    // Gallery CRUD
     Route::get('/gallery', [AdminDashboardController::class, 'galleryIndex'])->name('gallery');
     Route::post('/gallery', [AdminDashboardController::class, 'storeGallery'])->name('gallery.store');
     Route::delete('/gallery/{gallery}', [AdminDashboardController::class, 'deleteGallery'])->name('gallery.delete');
+
+    // Video CRUD
+    Route::get('/videos', [AdminDashboardController::class, 'videoIndex'])->name('admin.videos');
+    Route::post('/videos', [AdminDashboardController::class, 'storeVideo'])->name('admin.videos.store');
+    Route::delete('/videos/{video}', [AdminDashboardController::class, 'deleteVideo'])->name('admin.videos.delete');
+
+    // Document CRUD
+    Route::get('/documents', [AdminDashboardController::class, 'documentIndex'])->name('admin.documents');
+    Route::post('/documents', [AdminDashboardController::class, 'storeDocument'])->name('admin.documents.store');
+    Route::delete('/documents/{document}', [AdminDashboardController::class, 'deleteDocument'])->name('admin.documents.delete');
+
+    // Sustainability CRUD
+    Route::get('/sustainability', [AdminDashboardController::class, 'sustainabilityIndex'])->name('admin.sustainability');
+    Route::post('/sustainability', [AdminDashboardController::class, 'storeSustainability'])->name('admin.sustainability.store');
+    Route::delete('/sustainability/{sustainability}', [AdminDashboardController::class, 'deleteSustainability'])->name('admin.sustainability.delete');
+
+    // CSR CRUD
+    Route::get('/csr', [AdminDashboardController::class, 'csrIndex'])->name('admin.csr');
+    Route::post('/csr', [AdminDashboardController::class, 'storeCsr'])->name('admin.csr.store');
+    Route::delete('/csr/{csr}', [AdminDashboardController::class, 'deleteCsr'])->name('admin.csr.delete');
 
     Route::get('/messages', [AdminDashboardController::class, 'messagesIndex'])->name('messages');
     Route::post('/messages/{message}/toggle', [AdminDashboardController::class, 'toggleMessageRead'])->name('messages.toggle');

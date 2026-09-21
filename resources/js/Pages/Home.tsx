@@ -4,7 +4,7 @@ import Hero from '@/Components/Hero';
 import StatCard from '@/Components/StatCard';
 import SectionTitle from '@/Components/SectionTitle';
 import PerformanceChart from '@/Components/PerformanceChart';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
   CompanyProfile,
   OperationalStatistic,
@@ -55,6 +55,7 @@ export default function Home({
   awards,
 }: Props) {
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+  const { globalCms } = usePage<any>().props;
 
   return (
     <MainLayout>
@@ -81,22 +82,22 @@ export default function Home({
             <div className="lg:col-span-6 relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 group">
                 <img
-                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1000&q=80"
+                  src={globalCms?.home_profile_image?.body_text || "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1000&q=80"}
                   alt="Area Pembangkit UBP Barru"
                   className="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-white/10">
-                  <div className="text-xs text-sky-400 font-bold uppercase tracking-wider">PLTU BARRU (2 X 50 MW)</div>
-                  <div className="text-sm font-semibold text-slate-900">Desa Lampoko, Kec. Balusu, Kabupaten Barru, Sulsel</div>
+                  <div className="text-xs text-sky-400 font-bold uppercase tracking-wider">{globalCms?.home_profile_badge1_title?.body_text || "PLTU BARRU (2 X 50 MW)"}</div>
+                  <div className="text-sm font-semibold text-slate-900">{globalCms?.home_profile_badge1_desc?.body_text || "Desa Lampoko, Kec. Balusu, Kabupaten Barru, Sulsel"}</div>
                 </div>
               </div>
               {/* Floating Badge */}
               <div className="absolute -bottom-6 -right-6 hidden sm:flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white shadow-2xl">
                 <ShieldCheck className="w-8 h-8 shrink-0" />
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-wider">Keandalan Tinggi</div>
-                  <div className="text-sm font-extrabold">EAF 99.45%</div>
+                  <div className="text-xs font-bold uppercase tracking-wider">{globalCms?.home_profile_badge2_title?.body_text || "Keandalan Tinggi"}</div>
+                  <div className="text-sm font-extrabold">{globalCms?.home_profile_badge2_desc?.body_text || "EAF 99.45%"}</div>
                 </div>
               </div>
             </div>
@@ -105,7 +106,7 @@ export default function Home({
             <div className="lg:col-span-6 space-y-6">
               <SectionTitle
                 badge="TENTANG UBP BARRU"
-                title="Pilar Utama Keandalan Energi di Sulawesi Selatan"
+                title={globalCms?.home_profile_title?.title || "Pilar Utama Keandalan Energi di Sulawesi Selatan"}
                 centered={false}
               />
               <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
@@ -115,11 +116,11 @@ export default function Home({
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1">
                   <div className="text-xs text-slate-600 font-semibold">Tahun Operasional</div>
-                  <div className="text-lg font-extrabold text-slate-900 font-heading">Sejak 2012</div>
+                  <div className="text-lg font-extrabold text-slate-900 font-heading">{globalCms?.home_profile_year?.title || "Sejak 2012"}</div>
                 </div>
                 <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1">
                   <div className="text-xs text-slate-600 font-semibold">Tipe Teknologi</div>
-                  <div className="text-lg font-extrabold text-sky-400 font-heading">CFB Boiler</div>
+                  <div className="text-lg font-extrabold text-sky-400 font-heading">{globalCms?.home_profile_tech?.title || "CFB Boiler"}</div>
                 </div>
               </div>
               <div className="pt-4">
@@ -143,8 +144,8 @@ export default function Home({
           
           <SectionTitle
             badge="VISI & MISI"
-            title="Komitmen Terbaik Menuju Energi Keberlanjutan"
-            subtitle="Prinsip dasar tata kelola operasional dan nilai luhur insan PT PLN Indonesia Power UBP Barru"
+            title={globalCms?.home_visimisi_title?.title || "Komitmen Terbaik Menuju Energi Keberlanjutan"}
+            subtitle={globalCms?.home_visimisi_title?.body_text || "Prinsip dasar tata kelola operasional dan nilai luhur insan PT PLN Indonesia Power UBP Barru"}
           />
 
           {/* Vision Banner Card */}
@@ -185,8 +186,8 @@ export default function Home({
           
           <SectionTitle
             badge="OPERATIONAL EXCELLENCE"
-            title="Performa & Efisiensi Pembangkitan"
-            subtitle="Transparansi data real-time ketersediaan pasokan listrik dan keandalan sistem PLTU Barru"
+            title={globalCms?.home_operational_title?.title || "Performa & Efisiensi Pembangkitan"}
+            subtitle={globalCms?.home_operational_title?.body_text || "Transparansi data real-time ketersediaan pasokan listrik dan keandalan sistem PLTU Barru"}
           />
 
           <PerformanceChart metrics={metrics} />
@@ -199,9 +200,9 @@ export default function Home({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           <SectionTitle
-            badge="INFRASAKTUR PEMBANGKIT"
-            title="Fasilitas Utama PLTU Barru"
-            subtitle="Teknologi mutakhir pemroses energi listrik secara efisien dan terkendali"
+            badge="INFRASTRUKTUR & TEKNOLOGI"
+            title={globalCms?.home_facility_title?.title || "Infrastruktur & Teknologi Pembangkitan"}
+            subtitle={globalCms?.home_facility_title?.body_text || "Fasilitas utama dan pendukung yang menunjang keandalan produksi listrik UBP Barru"}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -251,11 +252,11 @@ export default function Home({
                   <Leaf className="w-4 h-4" />
                   <span>SUSTAINABILITY & KEANEKARAGAMAN HAYATI</span>
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 font-heading">
-                  Commitment Towards Sustainable Energy & Biodiversity
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-white font-heading">
+                  {globalCms?.home_sustainability_intro?.title || 'Commitment Towards Sustainable Energy & Biodiversity'}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                  UBP Barru mengintegrasikan pengelolaan energi ramah lingkungan, pemanfaatan FABA 100%, dekarbonisasi co-firing biomassa, serta konservasi penyu dan ekosistem mangrove pesisir Lampoko.
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {globalCms?.home_sustainability_intro?.body_text || 'UBP Barru mengintegrasikan pengelolaan energi ramah lingkungan, pemanfaatan FABA 100%, dekarbonisasi co-firing biomassa, serta konservasi penyu dan ekosistem mangrove pesisir Lampoko.'}
                 </p>
                 <div className="pt-2 flex flex-wrap gap-4">
                   <Link
@@ -275,16 +276,16 @@ export default function Home({
 
               <div className="lg:col-span-4 grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-2xl bg-white/90 border border-emerald-500/20 text-center space-y-1">
-                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-heading">18.5K Ton</div>
-                  <div className="text-[11px] text-slate-600 font-semibold">Reduksi CO2e / Thn</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-heading">{globalCms?.home_sus_stat_1?.title || '18.5K Ton'}</div>
+                  <div className="text-[11px] text-slate-600 font-semibold">{globalCms?.home_sus_stat_1?.body_text || 'Reduksi CO2e / Thn'}</div>
                 </div>
                 <div className="p-4 rounded-2xl bg-white/90 border border-emerald-500/20 text-center space-y-1">
-                  <div className="text-xl sm:text-2xl font-extrabold text-sky-400 font-heading">100%</div>
-                  <div className="text-[11px] text-slate-600 font-semibold">Pemanfaatan FABA</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-sky-500 font-heading">{globalCms?.home_sus_stat_2?.title || '100%'}</div>
+                  <div className="text-[11px] text-slate-600 font-semibold">{globalCms?.home_sus_stat_2?.body_text || 'Pemanfaatan FABA'}</div>
                 </div>
-                <div className="p-4 rounded-2xl bg-white/90 border border-emerald-500/20 text-center space-y-1 col-span-2">
-                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-heading">50,000+</div>
-                  <div className="text-[11px] text-slate-600 font-semibold">Pohon Mangrove Bakau Ditanam</div>
+                <div className="col-span-2 p-5 rounded-2xl bg-white/90 border border-emerald-500/20 text-center space-y-1">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-emerald-500 font-heading">{globalCms?.home_sus_stat_3?.title || '50,000+'}</div>
+                  <div className="text-xs text-slate-600 font-semibold">{globalCms?.home_sus_stat_3?.body_text || 'Pohon Mangrove Bakau Ditanam'}</div>
                 </div>
               </div>
 
@@ -300,9 +301,9 @@ export default function Home({
           
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <SectionTitle
-              badge="BERITA KORPORAT"
-              title="Berita & Informasi Terbaru"
-              subtitle="Kabar operasional, penghargaan, dan aksi sosial UBP Barru"
+              badge="BERITA & INFORMASI"
+              title={globalCms?.home_news_title?.title || "Pusat Informasi & Berita Terkini"}
+              subtitle={globalCms?.home_news_title?.body_text || "Update kegiatan operasional, kunjungan industri, dan pencapaian terbaru UBP Barru."}
               centered={false}
             />
             <Link

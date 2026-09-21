@@ -1,6 +1,6 @@
 import React from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Video as VideoType } from '@/Types';
 import { Video as VideoIcon, Play, Clock } from 'lucide-react';
 
@@ -9,6 +9,8 @@ interface Props {
 }
 
 export default function VideoIndex({ videos }: Props) {
+  const { globalCms } = usePage<any>().props;
+
   return (
     <MainLayout>
       <Head title="Dokumentasi Video - UBP Barru" />
@@ -20,10 +22,10 @@ export default function VideoIndex({ videos }: Props) {
             <span>VIDEO LIBRARI</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Video Dokumentasi
+            {globalCms?.media_video_title?.title || "Galeri Video"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Kumpulan video liputan resmi, company profile, dan aksi sosial keberlanjutan UBP Barru.
+          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed whitespace-pre-line">
+            {globalCms?.media_video_title?.body_text || "Dokumentasi visual bergerak mengenai operasional dan program unggulan kami."}
           </p>
         </div>
       </section>

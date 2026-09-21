@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Globe } from 'lucide-react';
 
 interface Props {
@@ -8,6 +8,10 @@ interface Props {
 }
 
 export default function Index({ settings }: Props) {
+  const { globalCms } = usePage<any>().props;
+  const contactTitle = globalCms?.contact_description?.title || "Hubungi UBP Barru";
+  const contactBody = globalCms?.contact_description?.body_text || "Sampaikan masukan, pertanyaan, atau permohonan kerjasama langsung ke Humas PT PLN Indonesia Power UBP Barru.";
+
   const { data, setData, post, processing, errors, reset, json } = useForm({
     name: '',
     email: '',
@@ -25,7 +29,7 @@ export default function Index({ settings }: Props) {
 
   return (
     <MainLayout>
-      <Head title="Hubungi Kami - PT PLN Indonesia Power UBP Barru" />
+      <Head title={`${contactTitle} - PT PLN Indonesia Power UBP Barru`} />
 
       <section className="relative py-20 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
@@ -34,19 +38,19 @@ export default function Index({ settings }: Props) {
             <span>LAYANAN HUMAS & DOKUMEN</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Hubungi UBP Barru
+            {contactTitle}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Sampaikan masukan, pertanyaan, atau permohonan kerjasama langsung ke Humas PT PLN Indonesia Power UBP Barru.
+          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed whitespace-pre-line">
+            {contactBody}
           </p>
         </div>
       </section>
 
       <section className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
+
             {/* Left Contact Information */}
             <div className="lg:col-span-5 space-y-8">
               <div className="space-y-4">

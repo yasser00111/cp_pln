@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { BiodiversitySpecies } from '@/Types';
 import { Leaf, Search, MapPin, Database, Table, Image, ShieldCheck } from 'lucide-react';
 
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function KehatiData({ species }: Props) {
+  const { globalCms } = usePage<any>().props;
   const [activeTab, setActiveTab] = useState<'All' | 'Flora' | 'Fauna'>('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -32,10 +33,10 @@ export default function KehatiData({ species }: Props) {
             <span>BIODIVERSITY DATA & RESOURCE TENDENCY</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Informasi Terkait & Kecenderungan Sumber Data Hayati dan Sumber Biologi
+            {globalCms?.biodiversity_data_info?.title || "Informasi Terkait & Kecenderungan Sumber Data Hayati dan Sumber Biologi"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-3xl leading-relaxed">
-            Data inventarisasi komprehensif flora dan fauna di kawasan PLTU Barru, disertai gambar dokumentasi spesimen dan matriks tabel status perlindungan (IUCN / CITES / Regulasi LHK).
+          <p className="text-xs sm:text-sm text-slate-700 max-w-3xl leading-relaxed whitespace-pre-line">
+            {globalCms?.biodiversity_data_info?.body_text || "Data inventarisasi komprehensif flora dan fauna di kawasan PLTU Barru, disertai gambar dokumentasi spesimen dan matriks tabel status perlindungan (IUCN / CITES / Regulasi LHK)."}
           </p>
         </div>
       </section>

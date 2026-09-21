@@ -9,7 +9,8 @@ interface Props {
 }
 
 export default function Index({ sliders }: Props) {
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [ctaText, setCtaText] = useState('Tentang Kami');
@@ -27,6 +28,30 @@ export default function Index({ sliders }: Props) {
     }
   };
 
+  const openAddModal = () => {
+    setEditingId(null);
+    setTitle('');
+    setSubtitle('');
+    setCtaText('Tentang Kami');
+    setCtaUrl('/profile/tentang');
+    setOrderPriority(1);
+    setImageFile(null);
+    setImagePreview(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (slider: HeroSlider) => {
+    setEditingId(slider.id);
+    setTitle(slider.title);
+    setSubtitle(slider.subtitle || '');
+    setCtaText(slider.cta_text || '');
+    setCtaUrl(slider.cta_url || '');
+    setOrderPriority(slider.order_priority || 1);
+    setImageFile(null);
+    setImagePreview(slider.image);
+    setShowModal(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setProcessing(true);
@@ -37,18 +62,22 @@ export default function Index({ sliders }: Props) {
     formData.append('cta_text', ctaText);
     formData.append('cta_url', ctaUrl);
     formData.append('order_priority', orderPriority.toString());
+    
     if (imageFile) {
       formData.append('image_file', imageFile);
     }
 
-    router.post('/admin/sliders', formData, {
+    const url = editingId ? `/admin/sliders/${editingId}` : '/admin/sliders';
+
+    router.post(url, formData, {
       onSuccess: () => {
         setProcessing(false);
         setTitle('');
         setSubtitle('');
         setImageFile(null);
         setImagePreview(null);
-        setShowAddModal(false);
+        setShowModal(false);
+        setEditingId(null);
       },
       onError: () => {
         setProcessing(false);
@@ -77,7 +106,7 @@ export default function Index({ sliders }: Props) {
             <p className="text-xs text-slate-600">Admin dapat mengunggah foto background slide carousel langsung dari komputer dan mengatur urutan tampilan</p>
           </div>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={openAddModal}
             className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-sky-500/20"
           >
             <Plus className="w-4 h-4" />
@@ -123,8 +152,16 @@ export default function Index({ sliders }: Props) {
                   {slider.is_active ? 'Non-Aktifkan' : 'Aktifkan'}
                 </button>
                 <button
+                  onClick={() => openEditModal(slider)}
+                  className="px-3 py-2 rounded-xl bg-sky-50 border border-sky-200 hover:bg-sky-500 hover:text-white text-sky-500 text-xs font-bold transition-colors"
+                  title="Edit"
+                >
+                  Edit
+                </button>
+                <button
                   onClick={() => deleteSlider(slider.id)}
-                  className="px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 hover:text-slate-900 text-rose-400 text-xs font-bold"
+                  className="px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 hover:text-slate-900 text-rose-400 text-xs font-bold transition-colors"
+                  title="Hapus"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -134,13 +171,15 @@ export default function Index({ sliders }: Props) {
         </div>
       </div>
 
-      {/* Add Slider Modal */}
-      {showAddModal && (
+      {/* Add/Edit Slider Modal */}
+      {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50/80 backdrop-blur-md">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-              <h3 className="text-lg font-bold text-slate-900 font-heading">Upload Slide Foto Hero Baru</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-600 hover:text-slate-900">✕</button>
+              <h3 className="text-lg font-bold text-slate-900 font-heading">
+                {editingId ? 'Edit Slide Foto Hero' : 'Upload Slide Foto Hero Baru'}
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-slate-600 hover:text-slate-900">✕</button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -174,7 +213,7 @@ export default function Index({ sliders }: Props) {
                   <input
                     type="file"
                     accept="image/*"
-                    required={!imageFile}
+                    required={!editingId && !imageFile}
                     onChange={handleFileChange}
                     className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                   />
@@ -220,7 +259,7 @@ export default function Index({ sliders }: Props) {
               <div className="pt-4 flex items-center justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => setShowModal(false)}
                   className="px-5 py-2.5 rounded-xl bg-slate-50 text-slate-600 font-bold text-xs"
                 >
                   Batal
@@ -230,7 +269,7 @@ export default function Index({ sliders }: Props) {
                   disabled={processing}
                   className="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-500 text-white font-bold text-xs shadow-lg shadow-sky-500/30"
                 >
-                  {processing ? 'Mengunggah...' : 'Upload & Simpan Slide'}
+                  {processing ? 'Menyimpan...' : (editingId ? 'Simpan Perubahan' : 'Upload & Simpan Slide')}
                 </button>
               </div>
             </form>

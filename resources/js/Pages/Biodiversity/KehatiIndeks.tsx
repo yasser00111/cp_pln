@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -16,32 +16,45 @@ import {
 import { BarChart3, TrendingUp, ShieldCheck, Leaf, Sparkles, Layers } from 'lucide-react';
 
 export default function KehatiIndeks() {
+  const { settings, globalCms } = usePage<any>().props;
   const [selectedYear, setSelectedYear] = useState<string>('2025');
 
   // Multi-year Index Data (Shannon-Wiener Index H', Evenness E, Dominance D)
-  const indexHistory = [
-    { period: '2021', floraH: 2.45, faunaH: 2.10, evenness: 0.82, dominance: 0.15 },
-    { period: '2022', floraH: 2.68, faunaH: 2.35, evenness: 0.85, dominance: 0.12 },
-    { period: '2023', floraH: 2.92, faunaH: 2.60, evenness: 0.88, dominance: 0.10 },
-    { period: '2024', floraH: 3.15, faunaH: 2.85, evenness: 0.91, dominance: 0.08 },
-    { period: '2025', floraH: 3.42, faunaH: 3.12, evenness: 0.94, dominance: 0.06 },
-  ];
+  let indexHistory = [];
+  try {
+    indexHistory = JSON.parse(settings?.bio_data_index_history || '[]');
+  } catch(e) {}
+  if (!indexHistory || indexHistory.length === 0) {
+    indexHistory = [
+      { period: '2021', floraH: 2.45, faunaH: 2.10, evenness: 0.82, dominance: 0.15 },
+      { period: '2022', floraH: 2.68, faunaH: 2.35, evenness: 0.85, dominance: 0.12 },
+      { period: '2023', floraH: 2.92, faunaH: 2.60, evenness: 0.88, dominance: 0.10 },
+      { period: '2024', floraH: 3.15, faunaH: 2.85, evenness: 0.91, dominance: 0.08 },
+      { period: '2025', floraH: 3.42, faunaH: 3.12, evenness: 0.94, dominance: 0.06 },
+    ];
+  }
 
   // Seasonal/Monthly Trend for 2025
-  const seasonalTrend = [
-    { month: 'Jan', Flora: 3.20, Fauna: 2.95, Total: 6.15 },
-    { month: 'Feb', Flora: 3.25, Fauna: 3.00, Total: 6.25 },
-    { month: 'Mar', Flora: 3.30, Fauna: 3.02, Total: 6.32 },
-    { month: 'Apr', Flora: 3.35, Fauna: 3.05, Total: 6.40 },
-    { month: 'Mei', Flora: 3.38, Fauna: 3.08, Total: 6.46 },
-    { month: 'Jun', Flora: 3.42, Fauna: 3.12, Total: 6.54 },
-    { month: 'Jul', Flora: 3.45, Fauna: 3.15, Total: 6.60 },
-    { month: 'Agu', Flora: 3.48, Fauna: 3.18, Total: 6.66 },
-    { month: 'Sep', Flora: 3.50, Fauna: 3.22, Total: 6.72 },
-    { month: 'Okt', Flora: 3.52, Fauna: 3.25, Total: 6.77 },
-    { month: 'Nov', Flora: 3.55, Fauna: 3.28, Total: 6.83 },
-    { month: 'Des', Flora: 3.58, Fauna: 3.30, Total: 6.88 },
-  ];
+  let seasonalTrend = [];
+  try {
+    seasonalTrend = JSON.parse(settings?.bio_data_seasonal_trend || '[]');
+  } catch(e) {}
+  if (!seasonalTrend || seasonalTrend.length === 0) {
+    seasonalTrend = [
+      { month: 'Jan', Flora: 3.20, Fauna: 2.95, Total: 6.15 },
+      { month: 'Feb', Flora: 3.25, Fauna: 3.00, Total: 6.25 },
+      { month: 'Mar', Flora: 3.30, Fauna: 3.02, Total: 6.32 },
+      { month: 'Apr', Flora: 3.35, Fauna: 3.05, Total: 6.40 },
+      { month: 'Mei', Flora: 3.38, Fauna: 3.08, Total: 6.46 },
+      { month: 'Jun', Flora: 3.42, Fauna: 3.12, Total: 6.54 },
+      { month: 'Jul', Flora: 3.45, Fauna: 3.15, Total: 6.60 },
+      { month: 'Agu', Flora: 3.48, Fauna: 3.18, Total: 6.66 },
+      { month: 'Sep', Flora: 3.50, Fauna: 3.22, Total: 6.72 },
+      { month: 'Okt', Flora: 3.52, Fauna: 3.25, Total: 6.77 },
+      { month: 'Nov', Flora: 3.55, Fauna: 3.28, Total: 6.83 },
+      { month: 'Des', Flora: 3.58, Fauna: 3.30, Total: 6.88 },
+    ];
+  }
 
   return (
     <MainLayout>
@@ -55,10 +68,10 @@ export default function KehatiIndeks() {
             <span>BIODIVERSITY DIVERSITY INDEX (H')</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Data Indeks Keanekaragaman Hayati
+            {globalCms?.bio_data_hero?.title || "Data Indeks Keanekaragaman Hayati"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-3xl leading-relaxed">
-            Visualisasi data grafis (picture chart) tren indeks keanekaragaman Shannon-Wiener ($H'$), indeks kemerataan ($E$), dan indeks dominansi ($D$) ekosistem flora & fauna di UBP Barru.
+          <p className="text-xs sm:text-sm text-slate-700 max-w-3xl leading-relaxed whitespace-pre-line">
+            {globalCms?.bio_data_hero?.body_text || "Visualisasi data grafis (picture chart) tren indeks keanekaragaman Shannon-Wiener ($H'$), indeks kemerataan ($E$), dan indeks dominansi ($D$) ekosistem flora & fauna di UBP Barru."}
           </p>
         </div>
       </section>
@@ -71,38 +84,38 @@ export default function KehatiIndeks() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/30 space-y-2 shadow-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600 font-semibold">Indeks Shannon-Wiener (Flora)</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">H' &gt; 3.0</span>
+                <span className="text-xs text-slate-600 font-semibold">{settings?.bio_data_stat_1_title || 'Indeks Shannon-Wiener (Flora)'}</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">{settings?.bio_data_stat_1_badge || "H' > 3.0"}</span>
               </div>
-              <div className="text-3xl font-extrabold text-emerald-400 font-heading">3.42</div>
-              <p className="text-xs text-slate-600">Kategori Keanekaragaman Tinggi (Sangat Baik)</p>
+              <div className="text-3xl font-extrabold text-emerald-400 font-heading">{settings?.bio_data_stat_1_value || '3.42'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_data_stat_1_desc || 'Kategori Keanekaragaman Tinggi (Sangat Baik)'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-sky-500/30 space-y-2 shadow-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600 font-semibold">Indeks Shannon-Wiener (Fauna)</span>
-                <span className="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 text-[10px] font-bold">H' &gt; 3.0</span>
+                <span className="text-xs text-slate-600 font-semibold">{settings?.bio_data_stat_2_title || 'Indeks Shannon-Wiener (Fauna)'}</span>
+                <span className="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 text-[10px] font-bold">{settings?.bio_data_stat_2_badge || "H' > 3.0"}</span>
               </div>
-              <div className="text-3xl font-extrabold text-sky-400 font-heading">3.12</div>
-              <p className="text-xs text-slate-600">Keanekaragaman fauna pesisir terkelola stabil</p>
+              <div className="text-3xl font-extrabold text-sky-400 font-heading">{settings?.bio_data_stat_2_value || '3.12'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_data_stat_2_desc || 'Keanekaragaman fauna pesisir terkelola stabil'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/30 space-y-2 shadow-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600 font-semibold">Indeks Kemerataan (E)</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">E &gt; 0.75</span>
+                <span className="text-xs text-slate-600 font-semibold">{settings?.bio_data_stat_3_title || 'Indeks Kemerataan (E)'}</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">{settings?.bio_data_stat_3_badge || "E > 0.75"}</span>
               </div>
-              <div className="text-3xl font-extrabold text-slate-900 font-heading">0.94</div>
-              <p className="text-xs text-slate-600">Penyebaran antar spesies sangat merata</p>
+              <div className="text-3xl font-extrabold text-slate-900 font-heading">{settings?.bio_data_stat_3_value || '0.94'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_data_stat_3_desc || 'Penyebaran antar spesies sangat merata'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-sky-500/30 space-y-2 shadow-xl">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600 font-semibold">Indeks Dominansi (D)</span>
-                <span className="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 text-[10px] font-bold">D &lt; 0.15</span>
+                <span className="text-xs text-slate-600 font-semibold">{settings?.bio_data_stat_4_title || 'Indeks Dominansi (D)'}</span>
+                <span className="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 text-[10px] font-bold">{settings?.bio_data_stat_4_badge || "D < 0.15"}</span>
               </div>
-              <div className="text-3xl font-extrabold text-sky-300 font-heading">0.06</div>
-              <p className="text-xs text-slate-600">Tidak ada spesies yang mendominasi secara ekstrem</p>
+              <div className="text-3xl font-extrabold text-sky-300 font-heading">{settings?.bio_data_stat_4_value || '0.06'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_data_stat_4_desc || 'Tidak ada spesies yang mendominasi secara ekstrem'}</p>
             </div>
           </div>
 
@@ -115,12 +128,12 @@ export default function KehatiIndeks() {
                   <span>Grafik Tren Kehati (Picture Graphic 1)</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 font-heading">
-                  Pertumbuhan Indeks Shannon-Wiener (2021 - 2025)
+                  {settings?.bio_data_chart1_title || 'Pertumbuhan Indeks Shannon-Wiener (2021 - 2025)'}
                 </h2>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-semibold">
                 <Leaf className="w-4 h-4 text-emerald-400" />
-                <span>Status: Tren Positif Terus Meningkat</span>
+                <span>{settings?.bio_data_chart1_badge || 'Status: Tren Positif Terus Meningkat'}</span>
               </div>
             </div>
 
@@ -161,7 +174,7 @@ export default function KehatiIndeks() {
                   <span>Dinamika Bulanan (Picture Graphic 2)</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 font-heading">
-                  Distribusi Indeks Keanekaragaman Bulanan Tahun 2025
+                  {settings?.bio_data_chart2_title || 'Distribusi Indeks Keanekaragaman Bulanan Tahun 2025'}
                 </h2>
               </div>
             </div>

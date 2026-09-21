@@ -4,17 +4,16 @@ import { Head, usePage } from '@inertiajs/react';
 import { Clock, Calendar, CheckCircle2, Zap, ShieldCheck, Award } from 'lucide-react';
 
 export default function Sejarah() {
-  const { globalCms } = usePage<any>().props;
+  const { globalCms, settings } = usePage<any>().props;
   const cmsTitle = globalCms?.['profile_sejarah_title']?.title || 'Sejarah UBP Barru';
   const cmsDesc = globalCms?.['profile_sejarah_description']?.body_text || 'Perjalanan panjang dedikasi PT PLN Indonesia Power UBP Barru dalam menerangi bumi Sulawesi.';
 
-  const timeline = [
-    { year: '2008', title: 'Inisiasi & Peletakan Batu Pertama', desc: 'Dimulainya proyek pembangunan PLTU Barru 2x50 MW di Desa Lampoko, Kecamatan Balusu, Kabupaten Barru untuk memperkuat daya pasok listrik Sulawesi Selatan.' },
-    { year: '2012', title: 'Commercial Operation Date (COD)', desc: 'Pengoperasian komersial Unit 1 dan Unit 2 secara resmi terhubung ke jaringan Sistem Interkoneksi Sulbagsel.' },
-    { year: '2016', title: 'Sertifikasi ISO Terpadu', desc: 'Raihan sertifikasi Sistem Manajemen Mutu (ISO 9001), Lingkungan (ISO 14001), dan K3 (ISO 45001).' },
-    { year: '2020', title: 'Penerapan Teknologi Clean Coal & FABA', desc: 'Dimulainya komitmen 100% pemanfaatan FABA untuk material konstruksi masyarakat dan efisiensi pembakaran CFB.' },
-    { year: '2024 - 2025', title: 'Anugerah PROPER Hijau Ke-5 & Co-firing Biomassa', desc: 'Raihan PROPER Hijau berturut-turut dari KLHK RI serta perluasan dekarbonisasi co-firing biomassa pelet kayu.' },
-  ];
+  let timeline = [];
+  try {
+    timeline = JSON.parse(settings?.history_timeline || '[]');
+  } catch (e) {
+    timeline = [];
+  }
 
   return (
     <MainLayout>

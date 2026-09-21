@@ -11,6 +11,7 @@ use App\Models\OperationalMetric;
 use App\Models\SustainabilityProgram;
 use App\Models\BiodiversitySpecies;
 use App\Models\BiodiversityProgram;
+use App\Models\Srikandi;
 use App\Models\CsrProgram;
 use App\Models\SafetyProgram;
 use App\Models\Award;
@@ -159,6 +160,31 @@ class AdminDashboardController extends Controller
         return redirect()->back()->with('success', 'Status slide diperbarui.');
     }
 
+    public function updateSlider(Request $request, HeroSlider $slider)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'cta_text' => 'nullable|string|max:255',
+            'cta_link' => 'nullable|string|max:255',
+            'order_priority' => 'nullable|integer',
+        ]);
+
+        if ($request->hasFile('image_file')) {
+            $request->validate([
+                'image_file' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            ]);
+            $path = $request->file('image_file')->store('uploads/sliders', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
+
+        $validated['order_priority'] = $validated['order_priority'] ?? 1;
+
+        $slider->update($validated);
+
+        return redirect()->back()->with('success', 'Hero slide photo berhasil diperbarui!');
+    }
+
     public function deleteSlider(HeroSlider $slider)
     {
         $slider->delete();
@@ -199,6 +225,52 @@ class AdminDashboardController extends Controller
         $facility->delete();
         return redirect()->back()->with('success', 'Fasilitas berhasil dihapus!');
     }
+
+    // Operational Statistics CRUD
+    public function statisticsIndex(): Response
+    {
+        $statistics = OperationalStatistic::orderBy('order_priority')->get();
+        return Inertia::render('Admin/Statistics/Index', ['statistics' => $statistics]);
+    }
+
+    public function storeStatistic(Request $request)
+    {
+        $validated = $request->validate([
+            'metric_key' => 'required|string|max:255',
+            'label' => 'required|string|max:255',
+            'value' => 'required|string|max:255',
+            'numeric_value' => 'nullable|numeric',
+            'unit' => 'nullable|string|max:50',
+            'subtext' => 'nullable|string|max:255',
+            'order_priority' => 'required|integer',
+        ]);
+
+        OperationalStatistic::create($validated);
+        return redirect()->back()->with('success', 'Statistik Operasional berhasil ditambahkan!');
+    }
+
+    public function updateStatistic(Request $request, OperationalStatistic $statistic)
+    {
+        $validated = $request->validate([
+            'metric_key' => 'required|string|max:255',
+            'label' => 'required|string|max:255',
+            'value' => 'required|string|max:255',
+            'numeric_value' => 'nullable|numeric',
+            'unit' => 'nullable|string|max:50',
+            'subtext' => 'nullable|string|max:255',
+            'order_priority' => 'required|integer',
+        ]);
+
+        $statistic->update($validated);
+        return redirect()->back()->with('success', 'Statistik Operasional berhasil diperbarui!');
+    }
+
+    public function deleteStatistic(OperationalStatistic $statistic)
+    {
+        $statistic->delete();
+        return redirect()->back()->with('success', 'Statistik berhasil dihapus!');
+    }
+
 
     // 6. Awards CRUD
     public function awardsIndex(): Response
@@ -292,6 +364,7 @@ class AdminDashboardController extends Controller
             $validated['image'] = '/storage/' . $path;
         }
 
+        $validated['category_id'] = \App\Models\Category::first()->id ?? 1;
         $validated['slug'] = Str::slug($validated['title']) . '-' . time();
         $validated['published_at'] = now();
 
@@ -335,7 +408,210 @@ class AdminDashboardController extends Controller
         return redirect()->back()->with('success', 'Foto galeri berhasil dihapus!');
     }
 
-    // 9. Contact Messages
+    // Video CRUD
+    public function videoIndex(): Response
+    {
+        $videos = Video::orderBy('created_at', 'desc')->get();
+        return Inertia::render('Admin/Video/Index', ['videos' => $videos]);
+    }
+
+    public function storeVideo(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'video_url' => 'required|url',
+            'type' => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+
+        Video::create($validated);
+
+        return redirect()->back()->with('success', 'Video berhasil ditambahkan!');
+    }
+
+    public function deleteVideo(Video $video)
+    {
+        $video->delete();
+        return redirect()->back()->with('success', 'Video berhasil dihapus!');
+    }
+
+    // Document CRUD
+    public function documentIndex(): Response
+    {
+        $documents = Document::orderBy('created_at', 'desc')->get();
+        return Inertia::render('Admin/Document/Index', ['documents' => $documents]);
+    }
+
+    public function storeDocument(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'year' => 'required|string|max:4',
+            'file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,zip|max:20480', // max 20MB
+        ]);
+
+        $data = [
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'year' => $validated['year'],
+        ];
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/documents'), $filename);
+            
+            $data['file_path'] = '/uploads/documents/' . $filename;
+            
+            // Format file size
+            $bytes = filesize(public_path('uploads/documents/' . $filename));
+            $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            $bytes = max($bytes, 0);
+            $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+            $pow = min($pow, count($units) - 1);
+            $bytes /= (1 << (10 * $pow));
+            $data['file_size'] = round($bytes, 1) . ' ' . $units[$pow];
+        }
+
+        Document::create($data);
+
+        return redirect()->back()->with('success', 'Dokumen berhasil ditambahkan!');
+    }
+
+    public function deleteDocument(Document $document)
+    {
+        if ($document->file_path && file_exists(public_path($document->file_path))) {
+            unlink(public_path($document->file_path));
+        }
+        $document->delete();
+
+        return redirect()->back()->with('success', 'Dokumen berhasil dihapus!');
+    }
+
+    // Srikandi CRUD
+    public function srikandiIndex(): Response
+    {
+        $srikandis = Srikandi::all();
+        return Inertia::render('Admin/Srikandi/Index', ['srikandis' => $srikandis]);
+    }
+
+    public function storeSrikandi(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'description' => 'required|string',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $data = $validated;
+
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/srikandi'), $filename);
+            $data['image_path'] = '/uploads/srikandi/' . $filename;
+        }
+
+        Srikandi::create($data);
+
+        return redirect()->back()->with('success', 'Data Srikandi berhasil ditambahkan!');
+    }
+
+    public function deleteSrikandi(Srikandi $srikandi)
+    {
+        if ($srikandi->image_path && file_exists(public_path($srikandi->image_path))) {
+            unlink(public_path($srikandi->image_path));
+        }
+        $srikandi->delete();
+
+        return redirect()->back()->with('success', 'Data Srikandi berhasil dihapus!');
+    }
+
+    // Sustainability Program CRUD
+    public function sustainabilityIndex(): Response
+    {
+        $programs = SustainabilityProgram::all();
+        return Inertia::render('Admin/Sustainability/Index', ['programs' => $programs]);
+    }
+
+    public function storeSustainability(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $data = $validated;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/sustainability'), $filename);
+            $data['image'] = '/uploads/sustainability/' . $filename;
+        }
+
+        SustainabilityProgram::create($data);
+
+        return redirect()->back()->with('success', 'Program ESG berhasil ditambahkan!');
+    }
+
+    public function deleteSustainability(SustainabilityProgram $sustainability)
+    {
+        if ($sustainability->image && file_exists(public_path($sustainability->image))) {
+            unlink(public_path($sustainability->image));
+        }
+        $sustainability->delete();
+
+        return redirect()->back()->with('success', 'Program ESG berhasil dihapus!');
+    }
+
+    // CSR Program CRUD
+    public function csrIndex(): Response
+    {
+        $programs = CsrProgram::all();
+        return Inertia::render('Admin/CSR/Index', ['programs' => $programs]);
+    }
+
+    public function storeCsr(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'date' => 'required|date',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $data = $validated;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/csr'), $filename);
+            $data['image'] = '/uploads/csr/' . $filename;
+        }
+
+        CsrProgram::create($data);
+
+        return redirect()->back()->with('success', 'Program CSR berhasil ditambahkan!');
+    }
+
+    public function deleteCsr(CsrProgram $csr)
+    {
+        if ($csr->image && file_exists(public_path($csr->image))) {
+            unlink(public_path($csr->image));
+        }
+        $csr->delete();
+
+        return redirect()->back()->with('success', 'Program CSR berhasil dihapus!');
+    }
+
+    // 8. News & Messages
     public function messagesIndex(): Response
     {
         $messages = ContactMessage::orderBy('created_at', 'desc')->get();

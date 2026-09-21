@@ -29,26 +29,26 @@ export default function VisiMisi({ visi, misi, cms }: Props) {
   }, []);
 
   const coreCompetencies = [
-    { title: 'Circulating Fluidized Bed (CFB) Tech', desc: 'Pengoperasian boiler tingkat efisiensi termal tinggi dengan fleksibilitas bahan bakar & emisi SOx/NOx minimal.' },
-    { title: 'Base-load Reliability Management', desc: 'Keandalan pengoperasian pasokan energi listrik secara kontinu 24/7 tanpa henti dengan Equivalent Availability Factor (EAF) 99.45%.' },
-    { title: '100% Circular Economy FABA Utilization', desc: 'Pemanfaatan sisa abu pembakaran batu bara (Fly Ash & Bottom Ash) menjadi paving block & struktur infrastruktur sipil.' },
-    { title: 'Biomass Co-firing Decarbonization', desc: 'Substitusi bahan bakar fosil dengan pelet kayu dan sekam padi lokal untuk reduksi emisi karbon 18.500 Ton CO2e/Tahun.' },
+    { title: cms['core_comp_1']?.title || 'Circulating Fluidized Bed (CFB) Tech', desc: cms['core_comp_1']?.body_text || 'Pengoperasian boiler tingkat efisiensi termal tinggi dengan fleksibilitas bahan bakar & emisi SOx/NOx minimal.' },
+    { title: cms['core_comp_2']?.title || 'Base-load Reliability Management', desc: cms['core_comp_2']?.body_text || 'Keandalan pengoperasian pasokan energi listrik secara kontinu 24/7 tanpa henti dengan Equivalent Availability Factor (EAF) 99.45%.' },
+    { title: cms['core_comp_3']?.title || '100% Circular Economy FABA Utilization', desc: cms['core_comp_3']?.body_text || 'Pemanfaatan sisa abu pembakaran batu bara (Fly Ash & Bottom Ash) menjadi paving block & struktur infrastruktur sipil.' },
+    { title: cms['core_comp_4']?.title || 'Biomass Co-firing Decarbonization', desc: cms['core_comp_4']?.body_text || 'Substitusi bahan bakar fosil dengan pelet kayu dan sekam padi lokal untuk reduksi emisi karbon 18.500 Ton CO2e/Tahun.' },
   ];
 
   const corporateValues = [
-    { title: 'A - Amanah', desc: 'Memegang teguh kepercayaan yang diberikan dalam mengelola aset vital pembangkitan nasional.' },
-    { title: 'K - Kompeten', desc: 'Terus belajar dan mengembangkan kapabilitas keahlian teknik insinyur pembangkitan.' },
-    { title: 'H - Harmonis', desc: 'Saling peduli dan menghargai perbedaan di lingkungan kerja dan masyarakat pesisir Barru.' },
-    { title: 'L - Loyal', desc: 'Berdedikasi dan mengutamakan kepentingan bangsa dan negara di atas kepentingan pribadi.' },
-    { title: 'A - Adaptif', desc: 'Terus berinovasi dan antusias dalam menggerakkan ataupun menghadapi transformasi digital energi.' },
-    { title: 'K - Kolaboratif', desc: 'Membangun kerja sama yang sinergis bersama stakeholder, pemerintah daerah, dan KLHK.' },
+    { title: cms['value_amanah']?.title || 'A - Amanah', desc: cms['value_amanah']?.body_text || 'Memegang teguh kepercayaan yang diberikan dalam mengelola aset vital pembangkitan nasional.' },
+    { title: cms['value_kompeten']?.title || 'K - Kompeten', desc: cms['value_kompeten']?.body_text || 'Terus belajar dan mengembangkan kapabilitas keahlian teknik insinyur pembangkitan.' },
+    { title: cms['value_harmonis']?.title || 'H - Harmonis', desc: cms['value_harmonis']?.body_text || 'Saling peduli dan menghargai perbedaan di lingkungan kerja dan masyarakat pesisir Barru.' },
+    { title: cms['value_loyal']?.title || 'L - Loyal', desc: cms['value_loyal']?.body_text || 'Berdedikasi dan mengutamakan kepentingan bangsa dan negara di atas kepentingan pribadi.' },
+    { title: cms['value_adaptif']?.title || 'A - Adaptif', desc: cms['value_adaptif']?.body_text || 'Terus berinovasi dan antusias dalam menggerakkan ataupun menghadapi transformasi digital energi.' },
+    { title: cms['value_kolaboratif']?.title || 'K - Kolaboratif', desc: cms['value_kolaboratif']?.body_text || 'Membangun kerja sama yang sinergis bersama stakeholder, pemerintah daerah, dan KLHK.' },
   ];
 
   const strengths = [
-    { title: 'Strategis Dalam Jaringan Sulbagsel', desc: 'Lokasi geografis di Desa Lampoko Barru yang vital menghubungkan beban puncak interkoneksi Sulawesi.' },
-    { title: 'K3 Zero Accident Record', desc: 'Pencapaian keselamatan kerja > 1.480 hari aman tanpa pernah ada kecelakaan fatal kerja.' },
-    { title: 'PROPER Hijau KLHK RI', desc: 'Peringkat lingkungan terbaik melebihi regulasi (beyond compliance) secara konsisten.' },
-    { title: 'Sumber Daya Manusia Tersertifikasi', desc: 'Tenaga kerja & teknisi lokal tersertifikasi keahlian spesialis K3L, operasi, dan overhaul turbin.' },
+    { title: cms['strength_1']?.title || 'Strategis Dalam Jaringan Sulbagsel', desc: cms['strength_1']?.body_text || 'Lokasi geografis di Desa Lampoko Barru yang vital menghubungkan beban puncak interkoneksi Sulawesi.' },
+    { title: cms['strength_2']?.title || 'K3 Zero Accident Record', desc: cms['strength_2']?.body_text || 'Pencapaian keselamatan kerja > 1.480 hari aman tanpa pernah ada kecelakaan fatal kerja.' },
+    { title: cms['strength_3']?.title || 'PROPER Hijau KLHK RI', desc: cms['strength_3']?.body_text || 'Peringkat lingkungan terbaik melebihi regulasi (beyond compliance) secara konsisten.' },
+    { title: cms['strength_4']?.title || 'Sumber Daya Manusia Tersertifikasi', desc: cms['strength_4']?.body_text || 'Tenaga kerja & teknisi lokal tersertifikasi keahlian spesialis K3L, operasi, dan overhaul turbin.' },
   ];
 
   return (
@@ -111,7 +111,7 @@ export default function VisiMisi({ visi, misi, cms }: Props) {
 
           {/* 3. OUR CORE COMPETENCIES */}
           <div id="competencies" className="scroll-mt-28 space-y-6 border-t border-slate-200/80 pt-16">
-            <SectionTitle badge="CORE COMPETENCIES" title="Our Core Competencies" subtitle="Keahlian teknis dan kapabilitas kunci operasional UBP Barru" centered={false} />
+            <SectionTitle badge="CORE COMPETENCIES" title={cms['core_competencies_section']?.title || "Our Core Competencies"} subtitle={cms['core_competencies_section']?.body_text || "Keahlian teknis dan kapabilitas kunci operasional UBP Barru"} centered={false} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {coreCompetencies.map((comp, idx) => (
                 <div key={idx} className="p-6 rounded-3xl bg-white border border-slate-200 space-y-3">
@@ -129,7 +129,7 @@ export default function VisiMisi({ visi, misi, cms }: Props) {
 
           {/* 4. OUR VALUES */}
           <div id="values" className="scroll-mt-28 space-y-6 border-t border-slate-200/80 pt-16">
-            <SectionTitle badge="CORPORATE VALUES" title="Our Values (AKHLAK)" subtitle="Standar etika dan perilaku insan PT PLN Indonesia Power" centered={false} />
+            <SectionTitle badge="CORPORATE VALUES" title={cms['values_section']?.title || "Our Values (AKHLAK)"} subtitle={cms['values_section']?.body_text || "Standar etika dan perilaku insan PT PLN Indonesia Power"} centered={false} />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {corporateValues.map((val, idx) => (
                 <div key={idx} className="p-6 rounded-3xl bg-white border border-slate-200 space-y-2">
@@ -144,7 +144,7 @@ export default function VisiMisi({ visi, misi, cms }: Props) {
 
           {/* 5. OUR STRENGTHS */}
           <div id="strengths" className="scroll-mt-28 space-y-6 border-t border-slate-200/80 pt-16">
-            <SectionTitle badge="OUR STRENGTHS" title="Our Strengths" subtitle="Keunggulan kompetitif UBP Barru dalam industri energi pembangkitan" centered={false} />
+            <SectionTitle badge="OUR STRENGTHS" title={cms['strengths_section']?.title || "Our Strengths"} subtitle={cms['strengths_section']?.body_text || "Keunggulan kompetitif UBP Barru dalam industri energi pembangkitan"} centered={false} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {strengths.map((st, idx) => (
                 <div key={idx} className="p-6 rounded-3xl bg-white border border-slate-200 flex items-start gap-4">

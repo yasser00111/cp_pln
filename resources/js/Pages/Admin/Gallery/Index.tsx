@@ -87,11 +87,11 @@ export default function Index({ galleries }: Props) {
               <form onSubmit={submit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Judul Foto</label>
-                  <input type="text" value={data.title} onChange={e => setData('title', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" required />
+                  <input type="text" value={data.title} onChange={e => setData('title', e.target.value)} className="mt-1 block w-full bg-white text-slate-900 rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Kategori</label>
-                  <select value={data.category} onChange={e => setData('category', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm">
+                  <select value={data.category} onChange={e => setData('category', e.target.value)} className="mt-1 block w-full bg-white text-slate-900 rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm">
                     <option value="Operational">Operational</option>
                     <option value="Environment">Environment</option>
                     <option value="CSR">CSR</option>

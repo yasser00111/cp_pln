@@ -95,15 +95,15 @@ export default function Index({ newsList }: Props) {
               <form onSubmit={submit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Judul Berita</label>
-                  <input type="text" value={data.title} onChange={e => setData('title', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" required />
+                  <input type="text" value={data.title} onChange={e => setData('title', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm text-slate-900" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Kutipan Singkat (Excerpt)</label>
-                  <input type="text" value={data.excerpt} onChange={e => setData('excerpt', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" />
+                  <input type="text" value={data.excerpt} onChange={e => setData('excerpt', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm text-slate-900" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Konten Berita</label>
-                  <textarea value={data.content} onChange={e => setData('content', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 min-h-[150px] sm:text-sm" required />
+                  <textarea value={data.content} onChange={e => setData('content', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 min-h-[150px] sm:text-sm text-slate-900" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Gambar Cover</label>

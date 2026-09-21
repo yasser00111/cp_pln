@@ -18,6 +18,8 @@ interface Props {
 export default function NewsIndex({ newsList, categories, filters }: Props) {
   const [search, setSearch] = useState(filters.search || '');
 
+  const { globalCms } = usePage<any>().props;
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     router.get('/news', { search, category: filters.category }, { preserveState: true });
@@ -38,10 +40,10 @@ export default function NewsIndex({ newsList, categories, filters }: Props) {
             <span>KABAR PERUSAHAAN</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Berita & Publikasi
+            {globalCms?.media_news_title?.title || "Berita & Publikasi"}
           </h1>
           <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Informasi resmi mengenai kegiatan operasional, penghargaan, aksi keberlanjutan, dan CSR UBP Barru.
+            {globalCms?.media_news_title?.body_text || "Informasi resmi mengenai kegiatan operasional, penghargaan, aksi keberlanjutan, dan CSR UBP Barru."}
           </p>
         </div>
       </section>

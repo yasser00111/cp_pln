@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { BiodiversitySpecies, BiodiversityProgram } from '@/Types';
 import { Leaf, Search, MapPin } from 'lucide-react';
 
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export default function Info({ species, program }: Props) {
+  const { settings, globalCms } = usePage<any>().props;
   const [activeTab, setActiveTab] = useState<'All' | 'Flora' | 'Fauna'>('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -33,10 +34,10 @@ export default function Info({ species, program }: Props) {
             <span>BIODIVERSITY INFORMATION</span>
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Status & Indeks Keanekaragaman Hayati
+            {globalCms?.bio_info_hero?.title || "Status & Indeks Keanekaragaman Hayati"}
           </h1>
-          <p className="text-xs sm:text-base text-slate-700 max-w-3xl leading-relaxed">
-            Informasi terkait status dan kecenderungan sumber daya kehati dan sumber biologi (flora dan fauna) serta data indeks keanekaragaman hayati di wilayah PT PLN Indonesia Power UBP Barru.
+          <p className="text-xs sm:text-base text-slate-700 max-w-3xl leading-relaxed whitespace-pre-line">
+            {globalCms?.bio_info_hero?.body_text || "Informasi terkait status dan kecenderungan sumber daya kehati dan sumber biologi (flora dan fauna) serta data indeks keanekaragaman hayati di wilayah PT PLN Indonesia Power UBP Barru."}
           </p>
         </div>
       </section>
@@ -47,35 +48,35 @@ export default function Info({ species, program }: Props) {
           {/* Biodiversity Statistics Dashboard Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs">
-                34+
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_info_stat_1_badge || '34+'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Spesies Teridentifikasi</div>
-              <p className="text-xs text-slate-600">Flora mangrove & fauna perlindungan teridentifikasi.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_info_stat_1_title || 'Spesies Teridentifikasi'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_info_stat_1_desc || 'Flora mangrove & fauna perlindungan teridentifikasi.'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs">
-                14.5 Ha
+              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_info_stat_2_badge || '14.5 Ha'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Area Konservasi</div>
-              <p className="text-xs text-slate-600">Kawasan pesisir pantai Lampoko Barru.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_info_stat_2_title || 'Area Konservasi'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_info_stat_2_desc || 'Kawasan pesisir pantai Lampoko Barru.'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs">
-                H (Tinggi)
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_info_stat_3_badge || 'H (Tinggi)'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Indeks Shannon-Wiener</div>
-              <p className="text-xs text-slate-600">Keanekaragaman ekosistem perairan tergolong tinggi.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_info_stat_3_title || 'Indeks Shannon-Wiener'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_info_stat_3_desc || 'Keanekaragaman ekosistem perairan tergolong tinggi.'}</p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white border border-emerald-500/20 space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs">
-                Stabil
+              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 font-extrabold flex items-center justify-center text-xs px-2 whitespace-nowrap">
+                {settings?.bio_info_stat_4_badge || 'Stabil'}
               </div>
-              <div className="text-2xl font-extrabold text-slate-900 font-heading">Tren Populasi</div>
-              <p className="text-xs text-slate-600">Kecenderungan populasi satwa tetap stabil/meningkat.</p>
+              <div className="text-2xl font-extrabold text-slate-900 font-heading">{settings?.bio_info_stat_4_title || 'Tren Populasi'}</div>
+              <p className="text-xs text-slate-600">{settings?.bio_info_stat_4_desc || 'Kecenderungan populasi satwa tetap stabil/meningkat.'}</p>
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { SustainabilityProgram, SafetyProgram } from '@/Types';
 import { Leaf, ShieldCheck, Users, Globe, ArrowRight } from 'lucide-react';
 
@@ -21,10 +21,10 @@ export default function Index({ programs, safety }: Props) {
             <span>KEBERLANJUTAN ENERGI</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Sustainability Commitment
+            {usePage<any>().props.globalCms?.sustainability_commitment?.title || "Sustainability Commitment"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            PT PLN Indonesia Power UBP Barru berkomitmen menciptakan nilai jangka panjang dengan menerapkan ESG, circular economy FABA, dan perlindungan keanekaragaman hayati.
+          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed whitespace-pre-line">
+            {usePage<any>().props.globalCms?.sustainability_commitment?.body_text || "PT PLN Indonesia Power UBP Barru berkomitmen menciptakan nilai jangka panjang dengan menerapkan ESG, circular economy FABA, dan perlindungan keanekaragaman hayati."}
           </p>
         </div>
       </section>

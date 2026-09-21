@@ -1,6 +1,6 @@
 import React from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Document } from '@/Types';
 import { Download, FileText, Calendar, HardDrive } from 'lucide-react';
 
@@ -11,6 +11,8 @@ interface Props {
 }
 
 export default function DownloadsIndex({ documents, categories, selectedCategory }: Props) {
+  const { globalCms } = usePage<any>().props;
+
   const handleFilter = (cat: string) => {
     router.get('/downloads', { category: cat }, { preserveState: true });
   };
@@ -26,10 +28,10 @@ export default function DownloadsIndex({ documents, categories, selectedCategory
             <span>PUBLIKASI KORPORAT</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Download Center & Laporan Resmi
+            {globalCms?.downloads_hero?.title || "Download Center & Laporan Resmi"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Unduh berkas Annual Report, Sustainability Report, Company Profile, dan Laporan Lingkungan UBP Barru.
+          <p className="text-sm text-slate-700 max-w-2xl leading-relaxed whitespace-pre-line">
+            {globalCms?.downloads_hero?.body_text || "Unduh berkas Annual Report, Sustainability Report, Company Profile, dan Laporan Lingkungan UBP Barru."}
           </p>
         </div>
       </section>

@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 use App\Models\Content;
+use App\Models\Srikandi;
 
 class SustainabilityController extends Controller
 {
@@ -57,6 +58,7 @@ class SustainabilityController extends Controller
 
     public function gender(): Response
     {
-        return Inertia::render('Sustainability/Gender');
+        $srikandis = Srikandi::all();
+        return Inertia::render('Sustainability/Gender', ['srikandis' => $srikandis]);
     }
 }
