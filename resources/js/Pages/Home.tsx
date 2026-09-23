@@ -155,7 +155,7 @@ export default function Home({
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold tracking-widest uppercase">
                 <span>OUR VISION</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading italic leading-relaxed">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-100 font-heading italic leading-relaxed">
                 "{visi?.content || 'Menjadi perusahaan pembangkitan energi terdepan yang andal dan berkelanjutan.'}"
               </h3>
             </div>

@@ -29,24 +29,17 @@ export default function Footer() {
           {/* Col 1: Branding & Address */}
           <div className="lg:col-span-2 space-y-5">
             <div className="flex items-center gap-2.5">
-              {/* Official PLN Icon */}
-              <div className="w-9 h-11 relative flex items-center justify-center shrink-0">
+              <div className="w-10 h-12 relative flex items-center justify-center shrink-0">
                 <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/2/20/Logo_PLN.svg" 
+                  src="/assets/logo-pln-box.png" 
                   alt="Logo PLN" 
                   className="w-full h-full object-contain"
                 />
               </div>
-              
-              {/* Text Logo */}
-              <div className="flex flex-col justify-center">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-extrabold tracking-tight text-slate-900 text-xl font-heading leading-none">PLN</span>
-                  <span className="font-medium text-sky-300 text-sm leading-none">Indonesia Power</span>
-                </div>
-                <div className="text-[10px] font-bold tracking-[0.2em] text-emerald-400 uppercase mt-1">
-                  UBP BARRU
-                </div>
+              <div className="flex flex-col justify-center" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+                <span className="font-black tracking-[0.1em] text-[#00A2E9] text-[22px] leading-none mb-0.5">PLN</span>
+                <span className="font-normal tracking-wide text-slate-700 text-[13px] leading-none mb-1">Indonesia Power</span>
+                <span className="font-bold tracking-[0.2em] text-emerald-600 text-[9px] uppercase leading-none">UNIT BARRU</span>
               </div>
             </div>
 
@@ -124,6 +117,7 @@ export default function Footer() {
               <li><Link href="/profile/pimpinan" className="hover:text-sky-300 transition-colors">Jajaran Pimpinan</Link></li>
               <li><Link href="/profile/fasilitas" className="hover:text-sky-300 transition-colors">Fasilitas Pembangkit</Link></li>
               <li><Link href="/profile/penghargaan" className="hover:text-sky-300 transition-colors">Penghargaan & Sertifikat</Link></li>
+              <li><a href="https://rekrutmen.pln.co.id/" target="_blank" rel="noreferrer" className="hover:text-sky-300 transition-colors text-sky-400 font-semibold">Rekrutmen PLN</a></li>
             </ul>
           </div>
 

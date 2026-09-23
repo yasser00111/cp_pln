@@ -6,8 +6,8 @@ import { Leaf, Sprout, Heart, Target } from 'lucide-react';
 
 export default function BiodiversityProgram({ program }: { program: any }) {
   const { globalCms } = usePage<any>().props;
-  const cmsTitle = globalCms?.['biodiversity_program_title']?.title || 'Program Biologi & Konservasi';
-  const cmsDesc = globalCms?.['biodiversity_program_description']?.body_text || 'Inisiatif berkelanjutan UBP Barru dalam penghijauan kawasan, perlindungan habitat penyu laut, serta restorasi mangrove di wilayah Lampoko.';
+  const cmsTitle = globalCms?.['biodiversity_program_title']?.title || 'Program Konservasi';
+  const cmsDesc = globalCms?.['biodiversity_program_description']?.body_text || 'Inisiatif berkelanjutan UBP Barru dalam penghijauan kawasan, perlindungan habitat penyu laut, serta restorasi mangrove.';
 
   return (
     <MainLayout>

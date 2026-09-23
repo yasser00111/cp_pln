@@ -8,6 +8,8 @@ interface ContentItem {
   section_key: string;
   title: string | null;
   body_text: string | null;
+  image_url?: string | null;
+  imageFile?: File | null;
 }
 
 interface Props {
@@ -21,7 +23,7 @@ export default function AdminContentIndex({ contents }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleChange = (section_key: string, field: 'title' | 'body_text', value: string) => {
+  const handleChange = (section_key: string, field: keyof ContentItem, value: any) => {
     setFormData((prev) =>
       prev.map((item) =>
         item.section_key === section_key ? { ...item, [field]: value } : item
@@ -32,10 +34,21 @@ export default function AdminContentIndex({ contents }: Props) {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    
+    // Clean payload to prevent sending "null" strings for files
+    const payload = formData.map(item => {
+      const data = { ...item };
+      if (!data.imageFile) {
+        delete data.imageFile;
+      }
+      return data;
+    });
+
     router.post(
       '/admin/contents',
-      { contents: formData },
+      { contents: payload },
       {
+        forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
           setShowSuccess(true);
@@ -99,6 +112,24 @@ export default function AdminContentIndex({ contents }: Props) {
                           onChange={(e) => handleChange(item.section_key, 'body_text', e.target.value)}
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all outline-none resize-y"
                           placeholder="Masukkan teks narasi..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Gambar Background / Banner (Opsional)</label>
+                        {item.image_url && (
+                          <div className="mb-2 text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 inline-block">
+                            Gambar sudah terisi. Upload baru untuk menimpa.
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            handleChange(item.section_key, 'imageFile', file);
+                          }}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
                         />
                       </div>
                     </div>

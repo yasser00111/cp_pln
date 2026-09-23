@@ -27,16 +27,32 @@ export default function Info({ species, program }: Props) {
       <Head title="Informasi Keanekaragaman Hayati - UBP Barru" />
 
       {/* Hero Header */}
-      <section className="relative py-20 bg-gradient-to-b from-slate-900 via-emerald-950/40 to-slate-950 border-b border-emerald-500/20 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10 pt-10">
+      <section className="relative py-20 border-b border-emerald-500/20 overflow-hidden min-h-[300px] flex flex-col justify-center">
+        {/* Background Layer */}
+        <div className="absolute inset-0 z-0">
+          {globalCms?.bio_info_hero?.image_url ? (
+            <>
+              <img 
+                src={`/storage/${globalCms.bio_info_hero.image_url}`} 
+                alt="Biodiversity Background" 
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-slate-950/70"></div>
+            </>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-b from-slate-900 via-emerald-950/40 to-slate-950"></div>
+          )}
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10 pt-10 w-full">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
             <Leaf className="w-4 h-4" />
             <span>BIODIVERSITY INFORMATION</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 font-heading tracking-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white font-heading tracking-tight drop-shadow-md">
             {globalCms?.bio_info_hero?.title || "Status & Indeks Keanekaragaman Hayati"}
           </h1>
-          <p className="text-xs sm:text-base text-slate-700 max-w-3xl leading-relaxed whitespace-pre-line">
+          <p className="text-xs sm:text-base text-slate-200 max-w-3xl leading-relaxed whitespace-pre-line drop-shadow-md">
             {globalCms?.bio_info_hero?.body_text || "Informasi terkait status dan kecenderungan sumber daya kehati dan sumber biologi (flora dan fauna) serta data indeks keanekaragaman hayati di wilayah PT PLN Indonesia Power UBP Barru."}
           </p>
         </div>

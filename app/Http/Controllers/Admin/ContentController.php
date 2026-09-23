@@ -24,16 +24,23 @@ class ContentController extends Controller
             'contents.*.section_key' => 'required|string',
             'contents.*.title' => 'nullable|string',
             'contents.*.body_text' => 'nullable|string',
+            'contents.*.imageFile' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         foreach ($data['contents'] as $item) {
-            Content::updateOrCreate(
-                ['section_key' => $item['section_key']],
-                [
-                    'title' => $item['title'] ?? null,
-                    'body_text' => $item['body_text'] ?? null,
-                ]
-            );
+            $content = Content::firstOrNew(['section_key' => $item['section_key']]);
+            $content->title = $item['title'] ?? null;
+            $content->body_text = $item['body_text'] ?? null;
+
+            if (isset($item['imageFile']) && $item['imageFile'] instanceof \Illuminate\Http\UploadedFile) {
+                if ($content->image_url && \Illuminate\Support\Facades\Storage::disk('public')->exists($content->image_url)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($content->image_url);
+                }
+                $path = $item['imageFile']->store('cms', 'public');
+                $content->image_url = $path;
+            }
+
+            $content->save();
         }
 
         return redirect()->back()->with('success', 'Konten berhasil diperbarui!');
