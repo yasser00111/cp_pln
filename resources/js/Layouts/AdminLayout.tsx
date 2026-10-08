@@ -32,9 +32,9 @@ export default function AdminLayout({ children }: Props) {
   const { auth } = usePage<PageProps>().props;
 
   return (
-    <div className="min-h-screen flex bg-slate-50 text-slate-100 font-sans">
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 text-slate-100 font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between hidden md:flex">
+      <aside className="w-full md:w-64 bg-white border-b md:border-r border-slate-200 p-6 flex flex-col justify-between flex-shrink-0 gap-8 md:gap-0">
         <div className="space-y-8">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-sky-500 flex items-center justify-center text-slate-900">

@@ -78,7 +78,7 @@ export default function AdminManagementIndex({ leaders }: Props) {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: Ir. Ahmad Fauzi, M.T."
+                  placeholder="Contoh: Ahmad Burhani"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-sky-500"
                 />
               </div>

@@ -39,7 +39,7 @@ export default function CSR({ programs, cms }: Props) {
         </div>
       </section>
 
-      <section className="py-16 bg-slate-50">
+      <section id="unggulan" className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {programs.map((cs) => (

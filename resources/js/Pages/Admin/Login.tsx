@@ -4,8 +4,8 @@ import { Zap, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
-    email: 'admin@plnindonesiapower.co.id',
-    password: 'password123',
+    email: '',
+    password: '',
     remember: true,
   });
 
@@ -107,18 +107,7 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Preset Credentials Tip */}
-          <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-[11px] space-y-1">
-            <div className="font-bold text-sky-300">Kredensial Default Admin:</div>
-            <div className="text-slate-700 flex justify-between">
-              <span>Username / Email:</span>
-              <code className="text-sky-400 font-mono">admin@plnindonesiapower.co.id</code>
-            </div>
-            <div className="text-slate-700 flex justify-between">
-              <span>Password:</span>
-              <code className="text-sky-400 font-mono">password123</code>
-            </div>
-          </div>
+
         </div>
 
         <p className="text-[11px] text-center text-slate-500">

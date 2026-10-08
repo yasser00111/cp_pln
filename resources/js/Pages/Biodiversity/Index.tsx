@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
 import SectionTitle from '@/Components/SectionTitle';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { BiodiversitySpecies, BiodiversityProgram } from '@/Types';
 import { Leaf, Download, Search, Filter, ShieldCheck, MapPin, Calendar, CheckCircle2, ChevronRight } from 'lucide-react';
 

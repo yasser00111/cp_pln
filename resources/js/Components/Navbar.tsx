@@ -96,6 +96,7 @@ export default function Navbar() {
       label: 'BIODIVERSITY',
       items: [
         { label: 'Data & Informasi Hayati', href: '/biodiversity/info', desc: 'Informasi terkait Data Keanekaragaman Hayati', icon: Layers },
+        { label: 'Grafik Indeks Kehati', href: '/biodiversity/kehati-indeks', desc: 'Visualisasi Data Tren Kehati (Bar & Garis)', icon: Activity },
         { label: 'Program Konservasi', href: '/biodiversity/program', desc: 'Program penghijauan, penangkaran penyu & mangrove', icon: Leaf },
         { label: 'Laporan Konservasi (PDF Report)', href: '/biodiversity/report', desc: 'Publikasi & laporan kehati tahunan UBP Barru', icon: FileText },
       ],

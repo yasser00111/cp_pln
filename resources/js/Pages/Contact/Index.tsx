@@ -12,7 +12,7 @@ export default function Index({ settings }: Props) {
   const contactTitle = globalCms?.contact_description?.title || "Hubungi UBP Barru";
   const contactBody = globalCms?.contact_description?.body_text || "Sampaikan masukan, pertanyaan, atau permohonan kerjasama langsung ke Humas PT PLN Indonesia Power UBP Barru.";
 
-  const { data, setData, post, processing, errors, reset, json } = useForm({
+  const { data, setData, post, processing, errors, reset } = useForm({
     name: '',
     email: '',
     phone: '',
