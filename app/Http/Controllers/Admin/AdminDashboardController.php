@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
+use App\Models\Content;
 use App\Models\Management;
 use App\Models\Facility;
 use App\Models\OperationalStatistic;
@@ -55,7 +56,7 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    // 2. Profile Content Management (Tentang, Visi, Misi, Sejarah)
+    // 2. Profile Content Management (Tentang, Visi, Misi, Core Competencies, Values, Strengths)
     public function profileIndex(): Response
     {
         $about = CompanyProfile::where('key', 'tentang')->first();
@@ -63,10 +64,13 @@ class AdminDashboardController extends Controller
         $misiRaw = CompanyProfile::where('key', 'misi')->first();
         $misi = $misiRaw ? json_decode($misiRaw->content, true) : [];
 
+        $cms = Content::all()->keyBy('section_key');
+
         return Inertia::render('Admin/Profile/Index', [
             'about' => $about,
             'visi' => $visi,
             'misi' => $misi,
+            'cms' => $cms,
         ]);
     }
 
@@ -77,9 +81,34 @@ class AdminDashboardController extends Controller
         }
         if ($request->has('visi')) {
             CompanyProfile::updateOrCreate(['key' => 'visi'], ['title' => 'Visi Perusahaan', 'content' => $request->visi]);
+            Content::updateOrCreate(['section_key' => 'profile_visi'], [
+                'title' => 'Visi UBP Barru',
+                'body_text' => $request->visi,
+            ]);
         }
         if ($request->has('misi')) {
             CompanyProfile::updateOrCreate(['key' => 'misi'], ['title' => 'Misi Perusahaan', 'content' => json_encode($request->misi)]);
+            if (is_array($request->misi)) {
+                foreach ($request->misi as $i => $mItem) {
+                    $mKey = 'profile_misi_' . ($i + 1);
+                    Content::updateOrCreate(['section_key' => $mKey], [
+                        'title' => 'Misi ' . ($i + 1),
+                        'body_text' => is_array($mItem) ? ($mItem['desc'] ?? '') : (string)$mItem,
+                    ]);
+                }
+            }
+        }
+
+        if ($request->has('cms') && is_array($request->cms)) {
+            foreach ($request->cms as $sectionKey => $item) {
+                Content::updateOrCreate(
+                    ['section_key' => $sectionKey],
+                    [
+                        'title' => $item['title'] ?? null,
+                        'body_text' => $item['body_text'] ?? null,
+                    ]
+                );
+            }
         }
 
         return redirect()->back()->with('success', 'Konten Profil Perusahaan berhasil diperbarui!');
@@ -97,6 +126,9 @@ class AdminDashboardController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
+            'birth_info' => 'nullable|string|max:255',
+            'education' => 'nullable|string',
+            'career_journey' => 'nullable|string',
             'bio' => 'nullable|string',
             'photo' => 'nullable|string',
             'photo_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
@@ -110,15 +142,220 @@ class AdminDashboardController extends Controller
 
         unset($validated['photo_file']);
         $validated['order_priority'] = $validated['order_priority'] ?? 1;
+
+        if ($request->has('education')) {
+            $validated['education'] = array_values(array_filter(array_map('trim', explode("\n", $request->input('education', '')))));
+        }
+        if ($request->has('career_journey')) {
+            $validated['career_journey'] = array_values(array_filter(array_map('trim', explode("\n", $request->input('career_journey', '')))));
+        }
+
         Management::create($validated);
 
         return redirect()->back()->with('success', 'Data pimpinan/manajemen berhasil ditambahkan!');
+    }
+
+    public function updateManagement(Request $request, Management $management)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'birth_info' => 'nullable|string|max:255',
+            'education' => 'nullable|string',
+            'career_journey' => 'nullable|string',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|string',
+            'photo_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'order_priority' => 'nullable|integer',
+        ]);
+
+        if ($request->hasFile('photo_file')) {
+            $path = $request->file('photo_file')->store('uploads/management', 'public');
+            $validated['photo'] = '/storage/' . $path;
+        }
+
+        unset($validated['photo_file']);
+
+        if ($request->has('education')) {
+            $validated['education'] = array_values(array_filter(array_map('trim', explode("\n", $request->input('education', '')))));
+        }
+        if ($request->has('career_journey')) {
+            $validated['career_journey'] = array_values(array_filter(array_map('trim', explode("\n", $request->input('career_journey', '')))));
+        }
+
+        $management->update($validated);
+
+        return redirect()->back()->with('success', 'Data pimpinan ' . $management->name . ' berhasil diperbarui!');
     }
 
     public function deleteManagement(Management $management)
     {
         $management->delete();
         return redirect()->back()->with('success', 'Data pimpinan berhasil dihapus!');
+    }
+
+    public function updateLandscapePhotos(Request $request)
+    {
+        $request->validate([
+            'commissioners_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'directors_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'management_commissioners_highlight_title' => 'nullable|string|max:255',
+            'management_commissioners_highlight_name' => 'nullable|string|max:255',
+            'management_directors_highlight_title' => 'nullable|string|max:255',
+            'management_directors_highlight_name' => 'nullable|string|max:255',
+            'management_section_title' => 'nullable|string|max:255',
+            'management_section_desc' => 'nullable|string|max:1000',
+        ]);
+
+        if ($request->hasFile('commissioners_photo')) {
+            $file = $request->file('commissioners_photo');
+            $filename = 'commissioners_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/management'), $filename);
+            Setting::updateOrCreate(
+                ['key' => 'management_commissioners_photo'],
+                ['value' => '/uploads/management/' . $filename]
+            );
+        }
+
+        if ($request->hasFile('directors_photo')) {
+            $file = $request->file('directors_photo');
+            $filename = 'directors_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/management'), $filename);
+            Setting::updateOrCreate(
+                ['key' => 'management_directors_photo'],
+                ['value' => '/uploads/management/' . $filename]
+            );
+        }
+
+        if ($request->has('commissioners_data')) {
+            $data = json_decode($request->input('commissioners_data'), true);
+            if (is_array($data)) {
+                foreach ($data as &$item) {
+                    $fileKey = 'comm_photo_' . $item['id'];
+                    if ($request->hasFile($fileKey)) {
+                        $f = $request->file($fileKey);
+                        $fn = 'comm_' . $item['id'] . '_' . time() . '.' . $f->getClientOriginalExtension();
+                        $f->move(public_path('uploads/management'), $fn);
+                        $item['photo'] = '/uploads/management/' . $fn;
+                    }
+                }
+                Setting::updateOrCreate(
+                    ['key' => 'management_commissioners_data'],
+                    ['value' => json_encode($data, JSON_PRETTY_PRINT)]
+                );
+            }
+        }
+
+        if ($request->has('directors_data')) {
+            $data = json_decode($request->input('directors_data'), true);
+            if (is_array($data)) {
+                foreach ($data as &$item) {
+                    $fileKey = 'dir_photo_' . $item['id'];
+                    if ($request->hasFile($fileKey)) {
+                        $f = $request->file($fileKey);
+                        $fn = 'dir_' . $item['id'] . '_' . time() . '.' . $f->getClientOriginalExtension();
+                        $f->move(public_path('uploads/management'), $fn);
+                        $item['photo'] = '/uploads/management/' . $fn;
+                    }
+                }
+                Setting::updateOrCreate(
+                    ['key' => 'management_directors_data'],
+                    ['value' => json_encode($data, JSON_PRETTY_PRINT)]
+                );
+            }
+        }
+
+        $fields = [
+            'management_commissioners_highlight_title',
+            'management_commissioners_highlight_name',
+            'management_directors_highlight_title',
+            'management_directors_highlight_name',
+            'management_section_title',
+            'management_section_desc',
+        ];
+
+        foreach ($fields as $f) {
+            if ($request->has($f)) {
+                Setting::updateOrCreate(['key' => $f], ['value' => $request->input($f)]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Foto lanskap dan biodata jajaran manajemen berhasil diperbarui!');
+    }
+
+    public function updateBoardMember(Request $request)
+    {
+        $request->validate([
+            'board_type' => 'required|in:commissioners,directors',
+            'member_id' => 'required',
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'birth_info' => 'nullable|string|max:255',
+            'education' => 'nullable|string',
+            'career_journey' => 'nullable|string',
+            'photo_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $settingKey = $request->board_type === 'commissioners' 
+            ? 'management_commissioners_data' 
+            : 'management_directors_data';
+
+        $raw = Setting::where('key', $settingKey)->value('value');
+        $list = $raw ? json_decode($raw, true) : [];
+        if (!is_array($list)) {
+            $list = [];
+        }
+
+        $photoPath = null;
+        if ($request->hasFile('photo_file')) {
+            $file = $request->file('photo_file');
+            $filename = $request->board_type . '_' . $request->member_id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/management'), $filename);
+            $photoPath = '/uploads/management/' . $filename;
+        }
+
+        $memberId = (int)$request->member_id;
+        $found = false;
+
+        $educationArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('education', '')))));
+        $careerArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('career_journey', '')))));
+
+        foreach ($list as &$m) {
+            if ((int)$m['id'] === $memberId) {
+                $m['name'] = $request->input('name');
+                $m['position'] = $request->input('position');
+                $m['birthInfo'] = $request->input('birth_info', '-');
+                $m['education'] = $educationArray;
+                $m['careerJourney'] = $careerArray;
+                if ($photoPath) {
+                    $m['photo'] = $photoPath;
+                }
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            $newItem = [
+                'id' => $memberId,
+                'name' => $request->input('name'),
+                'position' => $request->input('position'),
+                'birthInfo' => $request->input('birth_info', '-'),
+                'education' => $educationArray,
+                'careerJourney' => $careerArray,
+                'photo' => $photoPath ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
+                'zone' => ['left' => '0%', 'width' => '16%'],
+                'arrowPos' => ['left' => '10%', 'top' => '70%'],
+            ];
+            $list[] = $newItem;
+        }
+
+        Setting::updateOrCreate(
+            ['key' => $settingKey],
+            ['value' => json_encode($list, JSON_PRETTY_PRINT)]
+        );
+
+        return redirect()->back()->with('success', 'Data ' . $request->name . ' berhasil diperbarui!');
     }
 
     // 4. Hero Sliders CRUD
@@ -307,11 +544,60 @@ class AdminDashboardController extends Controller
         return redirect()->back()->with('success', 'Sertifikat berhasil dihapus!');
     }
 
-    // 7. Biodiversity Species CRUD
+    // 7. Biodiversity Species & Conservation Reports CRUD
     public function biodiversityIndex(): Response
     {
         $species = BiodiversitySpecies::all();
-        return Inertia::render('Admin/Biodiversity/Index', ['species' => $species]);
+        $reports = Document::where('category', 'Laporan Konservasi')->orderBy('year', 'desc')->get();
+        return Inertia::render('Admin/Biodiversity/Index', [
+            'species' => $species,
+            'reports' => $reports,
+        ]);
+    }
+
+    public function storeBiodiversityReport(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'year' => 'required|string|max:4',
+            'file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,zip|max:25600', // max 25MB
+        ]);
+
+        $data = [
+            'title' => $validated['title'],
+            'category' => 'Laporan Konservasi',
+            'year' => $validated['year'],
+        ];
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/documents'), $filename);
+
+            $data['file_path'] = '/uploads/documents/' . $filename;
+
+            $bytes = filesize(public_path('uploads/documents/' . $filename));
+            $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            $bytes = max($bytes, 0);
+            $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+            $pow = min($pow, count($units) - 1);
+            $bytes /= (1 << (10 * $pow));
+            $data['file_size'] = round($bytes, 1) . ' ' . $units[$pow];
+        }
+
+        Document::create($data);
+
+        return redirect()->back()->with('success', 'Laporan konservasi berhasil diunggah!');
+    }
+
+    public function deleteBiodiversityReport(Document $document)
+    {
+        if ($document->file_path && file_exists(public_path($document->file_path))) {
+            @unlink(public_path($document->file_path));
+        }
+        $document->delete();
+
+        return redirect()->back()->with('success', 'Laporan konservasi berhasil dihapus!');
     }
 
     public function storeSpecies(Request $request)
@@ -335,6 +621,35 @@ class AdminDashboardController extends Controller
         unset($validated['image_file']);
         BiodiversitySpecies::create($validated);
         return redirect()->back()->with('success', 'Spesies keanekaragaman hayati berhasil ditambahkan!');
+    }
+
+    public function updateSpecies(Request $request, BiodiversitySpecies $species)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'latin_name' => 'nullable|string|max:255',
+            'category' => 'required|string|max:50',
+            'conservation_status' => 'required|string|max:100',
+            'location' => 'nullable|string|max:255',
+            'description' => 'required|string',
+            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('image_file')) {
+            if ($species->image && str_starts_with($species->image, '/storage/')) {
+                $oldPath = public_path(substr($species->image, 1));
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+            $path = $request->file('image_file')->store('uploads/biodiversity', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
+
+        unset($validated['image_file']);
+        $species->update($validated);
+        return redirect()->back()->with('success', 'Data spesies berhasil diperbarui!');
     }
 
     public function deleteSpecies(BiodiversitySpecies $species)
@@ -559,10 +874,40 @@ class AdminDashboardController extends Controller
         return redirect()->back()->with('success', 'Program ESG berhasil ditambahkan!');
     }
 
+    public function updateSustainability(Request $request, SustainabilityProgram $sustainability)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $data = [
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'description' => $validated['description'],
+        ];
+
+        if ($request->hasFile('image')) {
+            if ($sustainability->image && file_exists(public_path($sustainability->image))) {
+                @unlink(public_path($sustainability->image));
+            }
+            $file = $request->file('image');
+            $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/sustainability'), $filename);
+            $data['image'] = '/uploads/sustainability/' . $filename;
+        }
+
+        $sustainability->update($data);
+
+        return redirect()->back()->with('success', 'Program ESG berhasil diperbarui!');
+    }
+
     public function deleteSustainability(SustainabilityProgram $sustainability)
     {
         if ($sustainability->image && file_exists(public_path($sustainability->image))) {
-            unlink(public_path($sustainability->image));
+            @unlink(public_path($sustainability->image));
         }
         $sustainability->delete();
 
@@ -601,10 +946,44 @@ class AdminDashboardController extends Controller
         return redirect()->back()->with('success', 'Program CSR berhasil ditambahkan!');
     }
 
+    public function updateCsr(Request $request, CsrProgram $csr)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'date' => 'required|date',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $data = [
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'location' => $validated['location'],
+            'date' => $validated['date'],
+            'description' => $validated['description'],
+        ];
+
+        if ($request->hasFile('image')) {
+            if ($csr->image && file_exists(public_path($csr->image))) {
+                @unlink(public_path($csr->image));
+            }
+            $file = $request->file('image');
+            $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/csr'), $filename);
+            $data['image'] = '/uploads/csr/' . $filename;
+        }
+
+        $csr->update($data);
+
+        return redirect()->back()->with('success', 'Program CSR berhasil diperbarui!');
+    }
+
     public function deleteCsr(CsrProgram $csr)
     {
         if ($csr->image && file_exists(public_path($csr->image))) {
-            unlink(public_path($csr->image));
+            @unlink(public_path($csr->image));
         }
         $csr->delete();
 

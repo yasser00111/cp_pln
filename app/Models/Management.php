@@ -10,5 +10,19 @@ class Management extends Model
     use HasUuids;
 
     protected $table = 'managements';
-    protected $fillable = ['name', 'position', 'bio', 'photo', 'order_priority'];
+    protected $fillable = [
+        'name',
+        'position',
+        'birth_info',
+        'education',
+        'career_journey',
+        'bio',
+        'photo',
+        'order_priority',
+    ];
+
+    protected $casts = [
+        'education' => 'array',
+        'career_journey' => 'array',
+    ];
 }

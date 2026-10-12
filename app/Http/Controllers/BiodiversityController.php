@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BiodiversitySpecies;
 use App\Models\BiodiversityProgram;
+use App\Models\Document;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,7 +46,10 @@ class BiodiversityController extends Controller
 
     public function report(): Response
     {
-        return Inertia::render('Biodiversity/Report');
+        $reports = Document::where('category', 'Laporan Konservasi')->orderBy('year', 'desc')->get();
+        return Inertia::render('Biodiversity/Report', [
+            'reports' => $reports,
+        ]);
     }
 
     public function program(): Response

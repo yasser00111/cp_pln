@@ -88,7 +88,7 @@ export default function AdminLayout({ children }: Props) {
                 }`}
               >
                 <FileText className="w-4 h-4" />
-                <span>Profil (Lama)</span>
+                <span>Visi, Misi & Values</span>
               </Link>
               <Link
                 href="/admin/management"

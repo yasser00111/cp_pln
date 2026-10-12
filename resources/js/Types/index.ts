@@ -49,6 +49,9 @@ export interface Management {
   id: string;
   name: string;
   position: string;
+  birth_info?: string;
+  education?: string[];
+  career_journey?: string[];
   bio?: string;
   photo?: string;
   order_priority: number;

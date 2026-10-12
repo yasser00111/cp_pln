@@ -132,6 +132,7 @@ export default function Index({ documents }: Props) {
                     <option value="Company Profile">Company Profile</option>
                     <option value="Environmental Report">Environmental Report</option>
                     <option value="CSR Report">CSR Report</option>
+                    <option value="Laporan Konservasi">Laporan Konservasi</option>
                     <option value="Other">Lainnya</option>
                   </select>
                 </div>
