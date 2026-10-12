@@ -1013,7 +1013,8 @@ class AdminDashboardController extends Controller
     public function updateSettings(Request $request)
     {
         foreach ($request->except('_token') as $key => $val) {
-            Setting::updateOrCreate(['key' => $key], ['value' => $val]);
+            $value = is_array($val) ? json_encode($val) : $val;
+            Setting::updateOrCreate(['key' => $key], ['value' => $value]);
         }
         return redirect()->back()->with('success', 'Pengaturan situs berhasil diperbarui!');
     }

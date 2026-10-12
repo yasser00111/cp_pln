@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
 import { Head, usePage } from '@inertiajs/react';
+import * as XLSX from 'xlsx';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -11,7 +12,18 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
-import { TrendingUp, Leaf, BarChart3, Info } from 'lucide-react';
+import {
+  TrendingUp,
+  Leaf,
+  BarChart3,
+  Info,
+  FileSpreadsheet,
+  Download,
+  Table as TableIcon,
+  CheckCircle2,
+  Calendar,
+  Layers
+} from 'lucide-react';
 
 export default function KehatiIndeks() {
   const { settings, globalCms } = usePage<any>().props;
@@ -58,6 +70,49 @@ export default function KehatiIndeks() {
       flora: item.flora !== undefined ? item.flora : (item.floraH !== undefined ? item.floraH : 0),
     }));
   }
+
+  // 3. Data Tabel Excel (Tabel Rekapitulasi Indeks & Populasi)
+  let excelTableData: any[] = [];
+  try {
+    excelTableData = JSON.parse(settings?.bio_data_table_excel || '[]');
+  } catch (e) {}
+
+  if (!excelTableData || excelTableData.length === 0) {
+    excelTableData = indexHistory.map((idxItem: any, i: number) => {
+      const indItem = individualHistory.find((ind: any) => String(ind.period) === String(idxItem.period)) || individualHistory[i] || {};
+      const floraInd = Number(indItem.flora) || 0;
+      const faunaInd = Number(indItem.fauna) || 0;
+      const totalInd = Number(indItem.total) || (floraInd + faunaInd);
+      return {
+        period: idxItem.period,
+        flora: idxItem.flora,
+        fauna: idxItem.fauna,
+        flora_ind: floraInd,
+        fauna_ind: faunaInd,
+        total: totalInd,
+        status: idxItem.fauna >= 6000 ? 'Sangat Baik' : (idxItem.fauna >= 4000 ? 'Tinggi' : 'Stabil'),
+      };
+    });
+  }
+
+  // Handler Download Excel untuk Pengunjung Publik
+  const handleDownloadPublicExcel = () => {
+    const exportRows = excelTableData.map((row: any, idx: number) => ({
+      'No': idx + 1,
+      'Tahun / Periode': row.period,
+      'Indeks Flora (H\')': Number(row.flora).toLocaleString(),
+      'Indeks Fauna (H\')': Number(row.fauna).toLocaleString(),
+      'Jumlah Individu Flora': Number(row.flora_ind ?? row.flora).toLocaleString(),
+      'Jumlah Individu Fauna': Number(row.fauna_ind ?? row.fauna).toLocaleString(),
+      'Total Individu Terdata': Number(row.total ?? ((Number(row.flora_ind || 0) + Number(row.fauna_ind || 0)))).toLocaleString(),
+      'Status / Keterangan': row.status || 'Stabil'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportRows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Rekap Indeks Kehati');
+    XLSX.writeFile(wb, `Data_Indeks_Biodiversity_PLN_UBP_Barru.xlsx`);
+  };
 
   // Helper check for the 7502 peak in index history
   const maxFauna1 = Math.max(...indexHistory.map((d: any) => Number(d.fauna) || 0));
@@ -318,6 +373,119 @@ export default function KehatiIndeks() {
                   />
                 </AreaChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Tabel 3: Matriks Rekapitulasi Data Indeks & Populasi (Data Excel Resmi) */}
+          <div className="p-8 rounded-3xl bg-white border border-slate-200/90 space-y-6 shadow-xl">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                  <span>TABEL DATA RESMI KEHATI (SPREADSHEET METRICS)</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
+                  Matriks & Rekapitulasi Data Indeks Keanekaragaman Hayati
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  Tabel data terintegrasi hasil survei lapangan periodik yang menjadi dasar pembentukan kurva tren dan evaluasi PROPER.
+                </p>
+              </div>
+
+              {/* Tombol Unduh Excel */}
+              <div className="shrink-0">
+                <button
+                  type="button"
+                  onClick={handleDownloadPublicExcel}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-600/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                  title="Unduh seluruh data tabel ke file Microsoft Excel"
+                >
+                  <Download className="w-4 h-4 stroke-[2.5]" />
+                  <span>Unduh Data Excel (.xlsx)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Tabel Spreadsheet */}
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-[#064e3b] text-white uppercase text-[10px] font-bold tracking-wider">
+                  <tr>
+                    <th className="py-3.5 px-4 text-center">No</th>
+                    <th className="py-3.5 px-4">Tahun / Periode</th>
+                    <th className="py-3.5 px-4 text-right">Indeks Flora (H')</th>
+                    <th className="py-3.5 px-4 text-right">Indeks Fauna (H')</th>
+                    <th className="py-3.5 px-4 text-right">Individu Flora</th>
+                    <th className="py-3.5 px-4 text-right">Individu Fauna</th>
+                    <th className="py-3.5 px-4 text-right">Total Populasi</th>
+                    <th className="py-3.5 px-4 text-center">Status Kehati</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {excelTableData.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-emerald-50/40 transition-colors">
+                      <td className="py-3.5 px-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                      <td className="py-3.5 px-4 font-black text-slate-900 text-sm">{row.period}</td>
+                      <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 text-sm">
+                        {Number(row.flora).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono font-bold text-sky-600 text-sm">
+                        {Number(row.fauna).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono text-slate-700">
+                        {Number(row.flora_ind ?? row.flora).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono text-slate-700">
+                        {Number(row.fauna_ind ?? row.fauna).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono font-black text-slate-900 bg-slate-50/80 text-sm">
+                        {Number(row.total ?? ((Number(row.flora_ind || 0) + Number(row.fauna_ind || 0)))).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100/70 text-emerald-800 border border-emerald-300">
+                          {row.status || 'Stabil'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-slate-50 border-t-2 border-slate-200 text-slate-700 font-bold text-xs">
+                  <tr>
+                    <td colSpan={2} className="py-3.5 px-4 uppercase text-[10px] text-slate-500 font-extrabold">
+                      Rata-Rata / Puncak
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono text-emerald-700">
+                      {(excelTableData.reduce((acc, r) => acc + Number(r.flora || 0), 0) / (excelTableData.length || 1)).toFixed(0)} (Rata-rata)
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono text-sky-700">
+                      {(excelTableData.reduce((acc, r) => acc + Number(r.fauna || 0), 0) / (excelTableData.length || 1)).toFixed(0)} (Rata-rata)
+                    </td>
+                    <td colSpan={2} className="py-3.5 px-4 text-right text-slate-500 text-[10px]">
+                      Populasi Puncak Terdata:
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-sm">
+                      {Math.max(...excelTableData.map(r => Number(r.total || ((Number(r.flora_ind || 0) + Number(r.fauna_ind || 0)))))).toLocaleString()}
+                    </td>
+                    <td className="py-3.5 px-4 text-center text-[10px] text-emerald-600 font-bold">
+                      ✓ Terverifikasi
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-2 pt-2">
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Data diselaraskan secara langsung dengan sistem inventarisasi kehati PT PLN Indonesia Power UBP Barru
+              </span>
+              <button
+                type="button"
+                onClick={handleDownloadPublicExcel}
+                className="text-emerald-700 font-bold hover:underline cursor-pointer"
+              >
+                Unduh file spreadsheet lengkap (.xlsx) →
+              </button>
             </div>
           </div>
 
