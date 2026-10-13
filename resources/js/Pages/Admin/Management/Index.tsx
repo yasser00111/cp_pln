@@ -19,6 +19,7 @@ import {
   Sparkles,
   Plus
 } from 'lucide-react';
+import { compressImage } from '@/Utils/imageCompressor';
 
 interface LeaderItem {
   id: number;
@@ -529,9 +530,9 @@ export default function AdminManagementIndex({ leaders }: Props) {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       if (e.target.files && e.target.files[0]) {
-                        const file = e.target.files[0];
+                        const file = await compressImage(e.target.files[0]);
                         setCommissionersFile(file);
                         setCommissionersPreview(URL.createObjectURL(file));
                       }
@@ -575,9 +576,9 @@ export default function AdminManagementIndex({ leaders }: Props) {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       if (e.target.files && e.target.files[0]) {
-                        const file = e.target.files[0];
+                        const file = await compressImage(e.target.files[0]);
                         setDirectorsFile(file);
                         setDirectorsPreview(URL.createObjectURL(file));
                       }
@@ -690,9 +691,9 @@ export default function AdminManagementIndex({ leaders }: Props) {
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         if (e.target.files && e.target.files[0]) {
-                          const file = e.target.files[0];
+                          const file = await compressImage(e.target.files[0]);
                           setLocalPhotoFile(file);
                           setLocalPhotoPreview(URL.createObjectURL(file));
                         }
@@ -861,9 +862,9 @@ export default function AdminManagementIndex({ leaders }: Props) {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         if (e.target.files && e.target.files[0]) {
-                          const file = e.target.files[0];
+                          const file = await compressImage(e.target.files[0]);
                           setEditPhotoFile(file);
                           setEditPhotoPreview(URL.createObjectURL(file));
                         }
@@ -1031,9 +1032,9 @@ export default function AdminManagementIndex({ leaders }: Props) {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         if (e.target.files && e.target.files[0]) {
-                          const file = e.target.files[0];
+                          const file = await compressImage(e.target.files[0]);
                           setEditLocalPhotoFile(file);
                           setEditLocalPhotoPreview(URL.createObjectURL(file));
                         }

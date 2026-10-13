@@ -18,9 +18,9 @@ import {
   Image as ImageIcon,
   Check,
   Layers,
-  Sparkles,
   X
 } from 'lucide-react';
+import { compressImage } from '@/Utils/imageCompressor';
 
 interface ContentItem {
   id?: number;
@@ -1139,8 +1139,9 @@ export default function AdminContentIndex({ contents = {} }: Props) {
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0] || null;
+                                  onChange={async (e) => {
+                                    const rawFile = e.target.files?.[0] || null;
+                                    const file = rawFile ? await compressImage(rawFile) : null;
                                     handleChange(item.section_key, 'imageFile', file);
                                   }}
                                   className="hidden"
