@@ -238,12 +238,32 @@ class ContentSeeder extends Seeder
             [
                 'section_key' => 'biodiversity_program_title',
                 'title' => 'Program Biologi & Konservasi',
-                'body_text' => 'Program Konservasi',
+                'body_text' => 'Inisiatif berkelanjutan UBP Barru dalam penghijauan kawasan, perlindungan habitat penyu laut, serta restorasi mangrove pesisir.',
             ],
             [
                 'section_key' => 'biodiversity_program_description',
-                'title' => 'Deskripsi Program',
-                'body_text' => 'Program penghijauan, mangrove, dan penyu.',
+                'title' => 'Deskripsi Program Konservasi',
+                'body_text' => 'Inisiatif berkelanjutan UBP Barru dalam penghijauan kawasan, perlindungan habitat penyu laut, serta restorasi mangrove pesisir.',
+            ],
+            [
+                'section_key' => 'biodiversity_program_section',
+                'title' => 'Upaya Pelestarian Lingkungan',
+                'body_text' => 'Menjaga ekosistem pesisir dan satwa dilindungi demi masa depan yang lebih baik.',
+            ],
+            [
+                'section_key' => 'biodiversity_program_card_1',
+                'title' => 'Konservasi Mangrove Lampoko',
+                'body_text' => 'Penanaman dan rehabilitasi ekosistem mangrove di pesisir Lampoko sebagai benteng alami pencegah abrasi dan penyerap karbon.',
+            ],
+            [
+                'section_key' => 'biodiversity_program_card_2',
+                'title' => 'Penangkaran Penyu Laut',
+                'body_text' => 'Program penetasan dan pelepasan tukik untuk mendukung pelestarian populasi penyu yang terancam punah di sekitar wilayah operasi.',
+            ],
+            [
+                'section_key' => 'biodiversity_program_card_3',
+                'title' => 'Penghijauan Kawasan Pembangkit',
+                'body_text' => 'Penanaman pohon produktif dan perindang di area UBP Barru untuk menekan emisi, meningkatkan kualitas udara, serta memberikan lingkungan kerja yang asri.',
             ],
             [
                 'section_key' => 'biodiversity_report_title',

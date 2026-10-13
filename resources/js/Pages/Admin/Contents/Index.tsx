@@ -649,18 +649,39 @@ const SECTION_REGISTRY: Record<string, Omit<SectionMeta, 'key'>> = {
     helpText: 'Pengantar unduhan laporan pemantauan keanekaragaman hayati.',
   },
   biodiversity_program_title: {
-    label: 'Program Konservasi Kehati: Judul',
+    label: 'Program Konservasi: Judul & Pengantar Banner',
     page: 'Program Konservasi',
     pageUrl: '/biodiversity/program',
     category: 'biodiversity',
-    helpText: 'Header program aksi penanaman mangrove & pelestarian satwa.',
+    helpText: 'Tampil di banner paling atas halaman Program Biologi & Konservasi.',
   },
-  biodiversity_program_description: {
-    label: 'Program Konservasi Kehati: Deskripsi',
+  biodiversity_program_section: {
+    label: 'Program Konservasi: Judul Seksi (Upaya Pelestarian)',
     page: 'Program Konservasi',
     pageUrl: '/biodiversity/program',
     category: 'biodiversity',
-    helpText: 'Uraian target penanaman bibit dan keterlibatan komunitas.',
+    helpText: 'Judul seksi dan subjudul pengantar daftar program unggulan.',
+  },
+  biodiversity_program_card_1: {
+    label: 'Program 1: Konservasi Mangrove Lampoko',
+    page: 'Program Konservasi',
+    pageUrl: '/biodiversity/program',
+    category: 'biodiversity',
+    helpText: 'Judul dan penjelasan program penanaman ekosistem mangrove.',
+  },
+  biodiversity_program_card_2: {
+    label: 'Program 2: Penangkaran Penyu Laut',
+    page: 'Program Konservasi',
+    pageUrl: '/biodiversity/program',
+    category: 'biodiversity',
+    helpText: 'Judul dan penjelasan program penetasan & pelepasan tukik penyu.',
+  },
+  biodiversity_program_card_3: {
+    label: 'Program 3: Penghijauan Kawasan Pembangkit',
+    page: 'Program Konservasi',
+    pageUrl: '/biodiversity/program',
+    category: 'biodiversity',
+    helpText: 'Judul dan penjelasan program penanaman pohon di area pembangkit.',
   },
 
   // 6. MEDIA & DOWNLOADS
@@ -750,7 +771,22 @@ const CATEGORIES = [
 ] as const;
 
 export default function AdminContentIndex({ contents }: Props) {
-  const initialData = Object.values(contents);
+  const initialData = useMemo(() => {
+    const list: ContentItem[] = Object.values(contents);
+    const existingKeys = new Set(list.map((i) => i.section_key));
+    Object.keys(SECTION_REGISTRY).forEach((secKey) => {
+      if (!existingKeys.has(secKey)) {
+        list.push({
+          section_key: secKey,
+          title: '',
+          body_text: '',
+          image_url: null,
+        });
+      }
+    });
+    return list;
+  }, [contents]);
+
   const [formData, setFormData] = useState<ContentItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
