@@ -26,6 +26,7 @@ use App\Models\Setting;
 use App\Models\HeroSlider;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
