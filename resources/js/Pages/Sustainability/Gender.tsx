@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import MainLayout from '@/Layouts/MainLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { Users, Heart, Maximize2, X, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Users, Heart, Sparkles, ShieldCheck } from 'lucide-react';
 
 interface Srikandi {
   id: number;
@@ -17,17 +17,6 @@ interface Props {
 
 export default function GenderMainstreaming({ srikandis }: Props) {
   const { globalCms } = usePage<any>().props;
-
-  const [selectedSrikandi, setSelectedSrikandi] = useState<Srikandi | null>(null);
-
-  // Close modal on ESC key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedSrikandi(null);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   return (
     <MainLayout>
@@ -59,17 +48,21 @@ export default function GenderMainstreaming({ srikandis }: Props) {
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading">
                 {globalCms?.srikandi_section?.title || 'Profil Srikandi PLN IP UBP Barru'}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
                 {globalCms?.srikandi_section?.body_text ||
-                  'Menampilkan sosok tangguh Srikandi yang turut berkontribusi nyata dalam menjaga keandalan listrik negeri.'}
+                  'Mengenal lebih dekat para Srikandi yang berdedikasi tinggi dalam berbagai bidang strategis operasional dan manajemen.'}
               </p>
             </div>
-            <span className="text-xs font-bold px-3.5 py-1.5 rounded-xl bg-pink-500/10 text-pink-600 border border-pink-500/20 shrink-0">
-              {srikandis.length} Profil Srikandi
-            </span>
+
+            <div className="flex items-center gap-2">
+              <span className="px-3.5 py-1.5 rounded-full bg-pink-100 text-pink-700 text-xs font-bold">
+                {srikandis.length} Profil Srikandi
+              </span>
+            </div>
           </div>
 
-          <div className="space-y-12">
+          {/* Cards List */}
+          <div className="space-y-8">
             {srikandis.length > 0 ? (
               srikandis.map((srikandi, index) => {
                 const isEven = index % 2 === 0;
@@ -83,26 +76,14 @@ export default function GenderMainstreaming({ srikandis }: Props) {
                     className="p-6 sm:p-8 lg:p-10 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300"
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                      {/* Sisi Foto Srikandi */}
+                      {/* Sisi Foto Srikandi (Hanya Foto Bersih Tanpa Opsi Perbesar) */}
                       <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : 'lg:order-2'} w-full`}>
-                        <div
-                          onClick={() => setSelectedSrikandi(srikandi)}
-                          className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-pink-50 shadow-md group cursor-pointer border border-pink-100"
-                        >
+                        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-pink-50 shadow-md border border-pink-100">
                           <img
                             src={photoUrl}
                             alt={srikandi.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                          {/* Floating Action Badge */}
-                          <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-[11px] font-semibold shadow-lg group-hover:bg-pink-600 transition-colors">
-                              <Maximize2 className="w-3.5 h-3.5" />
-                              <span>Perbesar</span>
-                            </div>
-                          </div>
                         </div>
                       </div>
 
@@ -122,17 +103,6 @@ export default function GenderMainstreaming({ srikandis }: Props) {
                           {srikandi.description ||
                             'Berperan aktif dalam inisiatif korporat, menjaga standar keselamatan kerja, efisiensi operasional, serta menginspirasi generasi perempuan dalam industri ketenagalistrikan nasional.'}
                         </p>
-
-                        <div className="pt-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSrikandi(srikandi)}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-xl shadow-md shadow-pink-600/20 transition-all cursor-pointer"
-                          >
-                            <Maximize2 className="w-3.5 h-3.5" />
-                            <span>Lihat Profil Srikandi</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -151,53 +121,6 @@ export default function GenderMainstreaming({ srikandis }: Props) {
 
         </div>
       </section>
-
-      {/* Lightbox Modal: Perbesar Foto Srikandi */}
-      {selectedSrikandi && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200">
-            {/* Header */}
-            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
-              <div>
-                <h4 className="text-sm sm:text-base font-bold font-heading">{selectedSrikandi.name}</h4>
-                <p className="text-[11px] text-pink-400">{selectedSrikandi.position}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedSrikandi(null)}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                title="Tutup (ESC)"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Image Preview */}
-            <div className="p-4 sm:p-6 bg-slate-100 flex items-center justify-center min-h-[300px] max-h-[75vh] overflow-auto">
-              <img
-                src={selectedSrikandi.image_path || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80'}
-                alt={selectedSrikandi.name}
-                className="max-h-[65vh] max-w-full object-contain rounded-2xl shadow-lg border border-slate-200 bg-white"
-              />
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
-              <span>Srikandi PT PLN Indonesia Power UBP Barru</span>
-              <a
-                href={selectedSrikandi.image_path || '#'}
-                target="_blank"
-                rel="noreferrer"
-                download
-                className="font-bold text-pink-600 hover:text-pink-700 inline-flex items-center gap-1"
-              >
-                <span>Buka Gambar Asli</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </MainLayout>
   );
 }
