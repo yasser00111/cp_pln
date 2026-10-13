@@ -143,6 +143,24 @@ const defaultCommissioners: LeaderItem[] = [
     ],
     zone: { left: '83%', width: '17%' },
     arrowPos: { left: '89%', top: '76%' }
+  },
+  {
+    id: 7,
+    name: 'Bambang Anggoro',
+    position: 'Commissioner',
+    birthInfo: 'Jakarta, 12 September 1978',
+    photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
+    education: [
+      'Magister Manajemen Bisnis & Energi Universitas Indonesia',
+      'Sarjana Teknik Elektro Institut Teknologi Bandung'
+    ],
+    careerJourney: [
+      'Tenaga Ahli Madya Bidang Energi & Kebijakan Publik',
+      'Senior Advisor Transformasi Tata Kelola Korporat BUMN',
+      'Commissioner PT PLN Indonesia Power'
+    ],
+    zone: { left: '86%', width: '14%' },
+    arrowPos: { left: '92%', top: '76%' }
   }
 ];
 
@@ -413,8 +431,8 @@ export default function Pimpinan({ leaders }: Props) {
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-sky-100/40 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-slate-200/50 to-transparent pointer-events-none" />
 
-                {/* Grid 6 Orang Menggunakan Foto Upload Admin */}
-                <div className="relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 items-end max-w-6xl mx-auto min-h-[380px] sm:min-h-[440px]">
+                {/* Grid Figur Pimpinan Menggunakan Foto Upload Admin */}
+                <div className="relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 items-end max-w-7xl mx-auto min-h-[380px] sm:min-h-[440px]">
                   {activeLeaderList.map((leader, idx) => {
                     const isHovered = hoveredLeaderId === leader.id;
                     return (
@@ -515,11 +533,12 @@ export default function Pimpinan({ leaders }: Props) {
                     className="w-full h-auto max-h-[580px] object-contain mx-auto transition-transform duration-700 block"
                   />
 
-                  {/* 6 Interactive Hotspot Zones */}
-                  {activeLeaderList.map((leader) => {
+                  {/* Interactive Hotspot Zones */}
+                  {activeLeaderList.map((leader, idx) => {
                     const isHovered = hoveredLeaderId === leader.id;
-                    const zone = leader.zone || { left: '0%', width: '16%' };
-                    const arrowPos = leader.arrowPos || { left: '50%', top: '70%' };
+                    const colWidth = 100 / Math.max(activeLeaderList.length, 1);
+                    const zone = leader.zone || { left: `${idx * colWidth}%`, width: `${colWidth}%` };
+                    const arrowPos = leader.arrowPos || { left: `${(idx + 0.5) * colWidth}%`, top: '70%' };
 
                     return (
                       <div

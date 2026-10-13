@@ -306,17 +306,21 @@ class AdminDashboardController extends Controller
             $list = [];
         }
 
+        $memberId = (int)$request->member_id;
+        if ($memberId <= 0) {
+            $existingIds = array_column($list, 'id');
+            $memberId = !empty($existingIds) ? max($existingIds) + 1 : 1;
+        }
+
         $photoPath = null;
         if ($request->hasFile('photo_file')) {
             $file = $request->file('photo_file');
-            $filename = $request->board_type . '_' . $request->member_id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = $request->board_type . '_' . $memberId . '_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/management'), $filename);
             $photoPath = '/uploads/management/' . $filename;
         }
 
-        $memberId = (int)$request->member_id;
         $found = false;
-
         $educationArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('education', '')))));
         $careerArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('career_journey', '')))));
 
@@ -343,8 +347,8 @@ class AdminDashboardController extends Controller
                 'birthInfo' => $request->input('birth_info', '-'),
                 'education' => $educationArray,
                 'careerJourney' => $careerArray,
-                'photo' => $photoPath ?? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
-                'zone' => ['left' => '0%', 'width' => '16%'],
+                'photo' => $photoPath ?? 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
+                'zone' => ['left' => '0%', 'width' => '14%'],
                 'arrowPos' => ['left' => '10%', 'top' => '70%'],
             ];
             $list[] = $newItem;
@@ -355,7 +359,37 @@ class AdminDashboardController extends Controller
             ['value' => json_encode($list, JSON_PRETTY_PRINT)]
         );
 
-        return redirect()->back()->with('success', 'Data ' . $request->name . ' berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Data ' . $request->name . ' berhasil disimpan!');
+    }
+
+    public function deleteBoardMember(Request $request)
+    {
+        $request->validate([
+            'board_type' => 'required|in:commissioners,directors',
+            'member_id' => 'required',
+        ]);
+
+        $settingKey = $request->board_type === 'commissioners' 
+            ? 'management_commissioners_data' 
+            : 'management_directors_data';
+
+        $raw = Setting::where('key', $settingKey)->value('value');
+        $list = $raw ? json_decode($raw, true) : [];
+        if (!is_array($list)) {
+            $list = [];
+        }
+
+        $memberId = (int)$request->member_id;
+        $list = array_values(array_filter($list, function($m) use ($memberId) {
+            return (int)$m['id'] !== $memberId;
+        }));
+
+        Setting::updateOrCreate(
+            ['key' => $settingKey],
+            ['value' => json_encode($list, JSON_PRETTY_PRINT)]
+        );
+
+        return redirect()->back()->with('success', 'Anggota pimpinan berhasil dihapus!');
     }
 
     // 4. Hero Sliders CRUD

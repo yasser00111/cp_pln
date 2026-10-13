@@ -16,7 +16,8 @@ import {
   Edit3,
   X,
   Check,
-  Sparkles
+  Sparkles,
+  Plus
 } from 'lucide-react';
 
 interface LeaderItem {
@@ -44,7 +45,7 @@ export default function AdminManagementIndex({ leaders }: Props) {
   // Board Type Selector: 'commissioners' | 'directors'
   const [boardType, setBoardType] = useState<'commissioners' | 'directors'>('commissioners');
 
-  // Modal Editing State for 6 Board Members
+  // Modal Editing State for Board Members
   const [editingMember, setEditingMember] = useState<LeaderItem | null>(null);
   const [editName, setEditName] = useState('');
   const [editPosition, setEditPosition] = useState('');
@@ -84,7 +85,7 @@ export default function AdminManagementIndex({ leaders }: Props) {
   const [editLocalPhotoPreview, setEditLocalPhotoPreview] = useState<string | null>(null);
   const [isSubmittingLocalEdit, setIsSubmittingLocalEdit] = useState(false);
 
-  // Parse commissioners list from settings
+  // Parse commissioners list from settings (Default 7 Kartu)
   const commsList: LeaderItem[] = (() => {
     try {
       const raw = settings?.management_commissioners_data;
@@ -99,7 +100,8 @@ export default function AdminManagementIndex({ leaders }: Props) {
       { id: 3, name: 'Bin Nahadi', position: 'Commissioner', birthInfo: 'Jakarta, 15 Juli 1965', photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80', education: ['Magister Manajemen UI', 'Sarjana Akuntansi UI'], careerJourney: ['Direktur Pengawasan BPKP', 'Komite Audit BUMN', 'Commissioner PT PLN Indonesia Power'] },
       { id: 4, name: 'Arief Budiman', position: 'President Commissioner and Independent Commissioner', birthInfo: '-', photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', education: ['Magister Manajemen Universitas Gadjah Mada', 'Sarjana Sastra Inggris Untag & HI Unair'], careerJourney: ['Direktur Keuangan PT Pertamina (Persero)', 'Direktur Utama Danareksa', 'President Commissioner PT PLN Indonesia Power'] },
       { id: 5, name: 'Muhammad Ali', position: 'Commissioner', birthInfo: 'Palembang, 22 April 1973', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', education: ['Magister Manajemen Bisnis & Keuangan', 'Sarjana Ekonomi Unsri'], careerJourney: ['Tenaga Ahli Utama KSP RI', 'Senior Advisor Tata Kelola', 'Commissioner PT PLN Indonesia Power'] },
-      { id: 6, name: 'Lukman Hakim', position: 'Commissioner', birthInfo: 'Surakarta, 8 Agustus 1976', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80', education: ['Magister Kebijakan Publik UI', 'Sarjana Teknik UGM'], careerJourney: ['Staf Khusus Kementerian BUMN', 'Komisaris PT PJB', 'Commissioner PT PLN Indonesia Power'] }
+      { id: 6, name: 'Lukman Hakim', position: 'Commissioner', birthInfo: 'Surakarta, 8 Agustus 1976', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80', education: ['Magister Kebijakan Publik UI', 'Sarjana Teknik UGM'], careerJourney: ['Staf Khusus Kementerian BUMN', 'Komisaris PT PJB', 'Commissioner PT PLN Indonesia Power'] },
+      { id: 7, name: 'Bambang Anggoro', position: 'Commissioner', birthInfo: 'Jakarta, 12 September 1978', photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80', education: ['Magister Manajemen Bisnis & Energi UI', 'Sarjana Teknik Elektro ITB'], careerJourney: ['Tenaga Ahli Madya Energi & Regulasi', 'Commissioner PT PLN Indonesia Power'] }
     ];
   })();
 
@@ -133,6 +135,36 @@ export default function AdminManagementIndex({ leaders }: Props) {
     setEditCareerJourney((member.careerJourney || []).join('\n'));
     setEditPhotoFile(null);
     setEditPhotoPreview(member.photo);
+  };
+
+  // Handler: Buka modal tambah anggota pimpinan baru
+  const handleOpenAddModal = () => {
+    setEditingMember({
+      id: 0,
+      name: '',
+      position: boardType === 'commissioners' ? 'Commissioner' : 'Direktur',
+      birthInfo: '',
+      photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
+      education: [],
+      careerJourney: []
+    });
+    setEditName('');
+    setEditPosition(boardType === 'commissioners' ? 'Commissioner' : 'Direktur');
+    setEditBirthInfo('');
+    setEditEducation('');
+    setEditCareerJourney('');
+    setEditPhotoFile(null);
+    setEditPhotoPreview(null);
+  };
+
+  // Handler: Hapus kartu pimpinan
+  const handleDeleteMember = (memberId: number, memberName: string) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus kartu pimpinan "${memberName}"?`)) {
+      router.post('/admin/management/board-member/delete', {
+        board_type: boardType,
+        member_id: memberId
+      });
+    }
   };
 
   // Handler: Submit update untuk kartu anggota yang sedang diedit
@@ -332,49 +364,60 @@ export default function AdminManagementIndex({ leaders }: Props) {
           </button>
         </div>
 
-        {/* TAB 1: EDIT 6 KARTU PIMPINAN (PERSIS SEPERTI SCREENSHOT USER) */}
+        {/* TAB 1: EDIT KARTU PIMPINAN (DEWAN KOMISARIS & DIREKSI) */}
         {activeMainTab === 'cards' && (
           <div className="space-y-6">
             
-            {/* Top Bar: Selector Tab Dewan Komisaris / Direksi */}
+            {/* Top Bar: Selector Tab Dewan Komisaris / Direksi + Tombol Tambah */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-4 rounded-2xl shadow-xs">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 font-heading">
                   Pilih Kategori Manajemen yang Ingin Diedit:
                 </h3>
                 <p className="text-[11px] text-slate-500">
-                  Klik tombol <strong>"Edit Kartu"</strong> pada orang yang ingin diubah foto atau datanya.
+                  Klik tombol <strong>"Edit Kartu"</strong> pada orang yang ingin diubah foto/datanya, atau <strong>"+ Tambah Kartu"</strong> untuk menambah anggota baru.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setBoardType('commissioners')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      boardType === 'commissioners'
+                        ? 'bg-white text-[#008ba3] shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Dewan Komisaris ({commsList.length} Orang)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBoardType('directors')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      boardType === 'directors'
+                        ? 'bg-white text-[#008ba3] shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Direksi ({dirsList.length} Orang)
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setBoardType('commissioners')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    boardType === 'commissioners'
-                      ? 'bg-white text-[#008ba3] shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                  onClick={handleOpenAddModal}
+                  className="px-4 py-2.5 bg-[#008ba3] hover:bg-[#007489] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                 >
-                  Dewan Komisaris ({commsList.length} Orang)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBoardType('directors')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    boardType === 'directors'
-                      ? 'bg-white text-[#008ba3] shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Direksi ({dirsList.length} Orang)
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  <span>+ Tambah Kartu</span>
                 </button>
               </div>
             </div>
 
-            {/* Grid 6 Kartu (PERSIS TAMPILAN SCREENSHOT) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* Grid Kartu Pimpinan (Otomatis menyesuaikan jumlah kartu, misal 7 kartu) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
               {currentCards.map((member, idx) => (
                 <div
                   key={member.id}
@@ -406,15 +449,23 @@ export default function AdminManagementIndex({ leaders }: Props) {
                     </div>
                   </div>
 
-                  {/* Tombol Aksi Edit */}
-                  <div className="pt-4 w-full">
+                  {/* Tombol Aksi Edit & Hapus */}
+                  <div className="pt-4 w-full flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => handleOpenEditModal(member)}
-                      className="w-full py-2 bg-cyan-50 hover:bg-[#008ba3] text-[#008ba3] hover:text-white border border-cyan-200 hover:border-transparent rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                      className="flex-1 py-2 bg-cyan-50 hover:bg-[#008ba3] text-[#008ba3] hover:text-white border border-cyan-200 hover:border-transparent rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
                     >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Edit Kartu</span>
+                      <Edit3 className="w-3 h-3" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteMember(member.id, member.name)}
+                      className="p-2 bg-rose-50 hover:bg-rose-500 text-rose-600 hover:text-white border border-rose-200 hover:border-transparent rounded-xl transition-all cursor-pointer shadow-2xs"
+                      title={`Hapus kartu ${member.name}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -427,7 +478,7 @@ export default function AdminManagementIndex({ leaders }: Props) {
               <div className="space-y-1">
                 <p className="font-bold text-[#008ba3]">Keterangan Update Kartu & Popup Website:</p>
                 <p className="text-slate-600 leading-relaxed">
-                  Setiap perubahan foto, nama, jabatan, atau biodata pada 6 kartu di atas akan <strong>otomatis langsung terupdate</strong> di halaman publik <code className="bg-white px-1.5 py-0.5 rounded border border-cyan-200 font-mono text-[11px]">/profile/pimpinan</code>, baik pada deretan kartu di bawah maupun saat pengunjung mengklik tombol panah (↗) di foto bersama!
+                  Setiap penambahan, perubahan foto, nama, jabatan, atau biodata pada kartu di atas akan <strong>otomatis langsung terupdate</strong> di halaman publik <code className="bg-white px-1.5 py-0.5 rounded border border-cyan-200 font-mono text-[11px]">/profile/pimpinan</code>, baik pada deretan kartu di bawah maupun saat pengunjung mengklik foto!
                 </p>
               </div>
             </div>
@@ -761,11 +812,13 @@ export default function AdminManagementIndex({ leaders }: Props) {
             <div className="bg-[#00596b] px-6 py-4 flex items-center justify-between text-white">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#ffd100] text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
-                  #{editingMember.id}
+                  {editingMember.id > 0 ? `#${editingMember.id}` : '+'}
                 </div>
                 <div>
                   <h3 className="text-base font-bold font-heading">
-                    Edit Kartu Pimpinan: {editingMember.name}
+                    {editingMember.id > 0
+                      ? `Edit Kartu Pimpinan: ${editingMember.name}`
+                      : `Tambah Kartu ${boardType === 'commissioners' ? 'Dewan Komisaris' : 'Direksi'} Baru`}
                   </h3>
                   <p className="text-[11px] text-sky-200">
                     {boardType === 'commissioners' ? 'Dewan Komisaris' : 'Direksi'}
@@ -920,7 +973,13 @@ export default function AdminManagementIndex({ leaders }: Props) {
                   className="px-6 py-2.5 bg-[#008ba3] hover:bg-[#007489] text-white font-bold rounded-xl shadow-lg shadow-cyan-600/20 flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSubmittingMember ? 'Menyimpan...' : 'Simpan Perubahan Kartu'}</span>
+                  <span>
+                    {isSubmittingMember
+                      ? 'Menyimpan...'
+                      : editingMember.id > 0
+                      ? 'Simpan Perubahan Kartu'
+                      : '+ Simpan Kartu Baru'}
+                  </span>
                 </button>
               </div>
 

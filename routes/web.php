@@ -96,6 +96,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/management', [AdminDashboardController::class, 'storeManagement'])->name('management.store');
     Route::post('/management/landscape', [AdminDashboardController::class, 'updateLandscapePhotos'])->name('management.landscape');
     Route::post('/management/board-member', [AdminDashboardController::class, 'updateBoardMember'])->name('management.board_member.update');
+    Route::post('/management/board-member/delete', [AdminDashboardController::class, 'deleteBoardMember'])->name('management.board_member.delete');
     Route::post('/management/{management}', [AdminDashboardController::class, 'updateManagement'])->name('management.update');
     Route::delete('/management/{management}', [AdminDashboardController::class, 'deleteManagement'])->name('management.delete');
 
