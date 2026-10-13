@@ -116,7 +116,7 @@ export default function KehatiIndeks() {
 
   // Helper check for the 7502 peak in index history
   const maxFauna1 = Math.max(...indexHistory.map((d: any) => Number(d.fauna) || 0));
-  const chart1Ticks = maxFauna1 >= 7000 ? [0, 2000, 4000, 6000, 7502] : undefined;
+  const chart1Ticks = maxFauna1 === 7502 ? [0, 2000, 4000, 6000, 7502] : undefined;
 
   // Custom --o-- Legend Renderer exactly matching the reference design
   const renderCustomLegend = (props: any) => {

@@ -137,6 +137,75 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
     setStats((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Fallback data default tahunan
+  const defaultYearlyData = [
+    { period: '2022', flora: 2300, fauna: 5600, flora_ind: 1420, fauna_ind: 380, total: 1800, status: 'Stabil' },
+    { period: '2023', flora: 1800, fauna: 7200, flora_ind: 1850, fauna_ind: 460, total: 2310, status: 'Meningkat' },
+    { period: '2024', flora: 1950, fauna: 7502, flora_ind: 2340, fauna_ind: 590, total: 2930, status: 'Sangat Baik' },
+    { period: '2025', flora: 1600, fauna: 6300, flora_ind: 2980, fauna_ind: 740, total: 3720, status: 'Meningkat' },
+    { period: '2026', flora: 2700, fauna: 4100, flora_ind: 3650, fauna_ind: 920, total: 4570, status: 'Tinggi' },
+  ];
+
+  // State Baris Data Tahunan (yang ditampilkan di grafik & tooltip hitam)
+  const [yearlyRows, setYearlyRows] = useState<any[]>(() => {
+    try {
+      if (settings?.bio_data_table_excel) {
+        const parsed = JSON.parse(settings.bio_data_table_excel);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      if (settings?.bio_data_index_history) {
+        const idxHistory = JSON.parse(settings.bio_data_index_history);
+        const indHistory = settings?.bio_data_individual_history ? JSON.parse(settings.bio_data_individual_history) : [];
+        if (Array.isArray(idxHistory) && idxHistory.length > 0) {
+          return idxHistory.map((item: any, i: number) => {
+            const ind = indHistory.find((x: any) => String(x.period) === String(item.period)) || indHistory[i] || {};
+            const floraInd = Number(ind.flora) || Number(ind.flora_ind) || 0;
+            const faunaInd = Number(ind.fauna) || Number(ind.fauna_ind) || 0;
+            return {
+              period: String(item.period),
+              flora: Number(item.flora) || 0,
+              fauna: Number(item.fauna) || 0,
+              flora_ind: floraInd,
+              fauna_ind: faunaInd,
+              total: Number(ind.total) || (floraInd + faunaInd),
+              status: Number(item.fauna) >= 6000 ? 'Sangat Baik' : 'Stabil',
+            };
+          });
+        }
+      }
+    } catch (e) {}
+    return defaultYearlyData;
+  });
+
+  const handleYearlyRowChange = (index: number, field: string, val: any) => {
+    setYearlyRows(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: val };
+      if (field === 'flora_ind' || field === 'fauna_ind') {
+        const fInd = Number(field === 'flora_ind' ? val : updated[index].flora_ind) || 0;
+        const faInd = Number(field === 'fauna_ind' ? val : updated[index].fauna_ind) || 0;
+        updated[index].total = fInd + faInd;
+      }
+      return updated;
+    });
+  };
+
+  const handleAddYearlyRow = () => {
+    const nextYear = yearlyRows.length > 0 
+      ? String(Number(yearlyRows[yearlyRows.length - 1].period || 2026) + 1)
+      : '2027';
+    setYearlyRows(prev => [
+      ...prev,
+      { period: nextYear, flora: 2000, fauna: 5000, flora_ind: 3000, fauna_ind: 800, total: 3800, status: 'Stabil' }
+    ]);
+  };
+
+  const handleRemoveYearlyRow = (index: number) => {
+    if (confirm('Hapus baris data tahun ini dari grafik dan tabel?')) {
+      setYearlyRows(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
   // Handler Download Template Excel
   const handleDownloadTemplate = () => {
     const templateData = [
@@ -285,6 +354,7 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
     router.post('/admin/settings', payload, {
       onSuccess: () => {
         setIsSavingExcel(false);
+        setYearlyRows(excelPreviewRows);
         setExcelParseSuccess('Data Indeks Biodiversity dari Excel berhasil disimpan dan diterapkan ke halaman website!');
       },
       onError: () => {
@@ -296,9 +366,28 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
 
   const handleStatsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Synchronize both bio_stat and bio_info_stat keys so all pages reflect edits immediately
+    
+    // Serialisasi data baris grafik tahunan
+    const indexHistory = yearlyRows.map(r => ({
+      period: String(r.period),
+      flora: Number(r.flora) || 0,
+      fauna: Number(r.fauna) || 0,
+    }));
+
+    const individualHistory = yearlyRows.map(r => ({
+      period: String(r.period),
+      flora: Number(r.flora_ind) || 0,
+      fauna: Number(r.fauna_ind) || 0,
+      total: Number(r.total) || (Number(r.flora_ind || 0) + Number(r.fauna_ind || 0)),
+    }));
+
+    // Synchronize both bio_stat and bio_info_stat keys and yearly graph data
     const payload = {
       ...stats,
+      bio_data_index_history: JSON.stringify(indexHistory),
+      bio_data_individual_history: JSON.stringify(individualHistory),
+      bio_data_seasonal_trend: JSON.stringify(individualHistory),
+      bio_data_table_excel: JSON.stringify(yearlyRows),
       bio_info_stat_1_badge: stats.bio_stat_1_badge,
       bio_info_stat_1_title: stats.bio_stat_1_title,
       bio_info_stat_1_desc: stats.bio_stat_1_desc,
@@ -830,58 +919,217 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
               </div>
 
               {/* Bagian 3: Grafik Data Settings */}
-              <div className="space-y-4 pt-4 border-t border-slate-200">
+              <div className="space-y-6 pt-4 border-t border-slate-200">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-emerald-600" />
-                    <h3 className="text-sm font-bold text-slate-900 font-heading">Pengaturan Data Grafik (Halaman Data Indeks 2022 – 2026)</h3>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-emerald-600" />
+                      <h3 className="text-sm font-bold text-slate-900 font-heading">
+                        Pengaturan Data Grafik & Tooltip Hitam (Halaman Data Indeks 2022 – 2026)
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Kelola judul, badge status, serta titik data angka tahunan yang muncul di kurva grafik dan tooltip hitam saat di-hover.
+                    </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('ExcelTable')}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs border border-emerald-200 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs border border-emerald-200 transition-colors cursor-pointer shrink-0"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Import dari File Excel Otomatis ↗</span>
                   </button>
                 </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Chart 1 Settings */}
-                  <div className="p-4 border border-slate-200 rounded-2xl bg-slate-50 space-y-4 shadow-sm">
-                    <div className="font-bold text-slate-800 border-b border-slate-200 pb-2">Grafik 1: Kecenderungan Absolut / Indeks Kehati (Tahunan 2022 – 2026)</div>
+
+                {/* Judul & Status Badge Kedua Grafik */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  <div className="p-4 border border-slate-200 rounded-2xl bg-slate-50 space-y-3">
+                    <span className="font-bold text-slate-800 text-xs">Grafik 1: Kurva Indeks Kehati (Shannon-Wiener)</span>
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1">Judul Grafik 1</label>
-                      <input type="text" value={stats.bio_data_chart1_title} onChange={e => handleStatChange('bio_data_chart1_title', e.target.value)} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2" />
+                      <input
+                        type="text"
+                        value={stats.bio_data_chart1_title}
+                        onChange={e => handleStatChange('bio_data_chart1_title', e.target.value)}
+                        className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs"
+                      />
                     </div>
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1">Badge Status (Grafik 1)</label>
-                      <input type="text" value={stats.bio_data_chart1_badge} onChange={e => handleStatChange('bio_data_chart1_badge', e.target.value)} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-semibold mb-1">Data JSON Indeks Kehati (2022 – 2026)</label>
-                      <textarea value={stats.bio_data_index_history} onChange={e => handleStatChange('bio_data_index_history', e.target.value)} rows={7} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2 font-mono text-xs" placeholder='[{"period":"2022","fauna":5600,"flora":2300},{"period":"2023","fauna":7200,"flora":1800},{"period":"2024","fauna":7502,"flora":1950},{"period":"2025","fauna":6300,"flora":1600},{"period":"2026","fauna":4100,"flora":2700}]' />
-                      <p className="text-[10px] text-slate-500 mt-1">Gunakan array JSON dengan field: period, fauna, flora. (Atau gunakan tab "Import Data Excel Indeks").</p>
+                      <input
+                        type="text"
+                        value={stats.bio_data_chart1_badge}
+                        onChange={e => handleStatChange('bio_data_chart1_badge', e.target.value)}
+                        className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs"
+                      />
                     </div>
                   </div>
 
-                  {/* Chart 2 Settings */}
-                  <div className="p-4 border border-slate-200 rounded-2xl bg-slate-50 space-y-4 shadow-sm">
-                    <div className="font-bold text-slate-800 border-b border-slate-200 pb-2">Grafik 2: Jumlah Individu Flora & Fauna (Tahunan 2022 – 2026)</div>
+                  <div className="p-4 border border-slate-200 rounded-2xl bg-slate-50 space-y-3">
+                    <span className="font-bold text-slate-800 text-xs">Grafik 2: Jumlah Individu Flora & Fauna</span>
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1">Judul Grafik 2</label>
-                      <input type="text" value={stats.bio_data_chart2_title} onChange={e => handleStatChange('bio_data_chart2_title', e.target.value)} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2" />
+                      <input
+                        type="text"
+                        value={stats.bio_data_chart2_title}
+                        onChange={e => handleStatChange('bio_data_chart2_title', e.target.value)}
+                        className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs"
+                      />
                     </div>
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1">Badge Status (Grafik 2)</label>
-                      <input type="text" value={stats.bio_data_chart2_badge} onChange={e => handleStatChange('bio_data_chart2_badge', e.target.value)} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-semibold mb-1">Data JSON Jumlah Individu (2022 – 2026)</label>
-                      <textarea value={stats.bio_data_seasonal_trend} onChange={e => handleStatChange('bio_data_seasonal_trend', e.target.value)} rows={7} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2 font-mono text-xs" placeholder='[{"period":"2022","fauna":380,"flora":1420,"total":1800},{"period":"2023","fauna":460,"flora":1850,"total":2310},{"period":"2024","fauna":590,"flora":2340,"total":2930},{"period":"2025","fauna":740,"flora":2980,"total":3720},{"period":"2026","fauna":920,"flora":3650,"total":4570}]' />
-                      <p className="text-[10px] text-slate-500 mt-1">Gunakan array JSON dengan field: period, fauna, flora, total. (Atau gunakan tab "Import Data Excel Indeks").</p>
+                      <input
+                        type="text"
+                        value={stats.bio_data_chart2_badge}
+                        onChange={e => handleStatChange('bio_data_chart2_badge', e.target.value)}
+                        className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs"
+                      />
                     </div>
                   </div>
+                </div>
+
+                {/* TABEL EDITOR DATA TAHUNAN (MENGUBAH ANGKA DI GRAFIK & TOOLTIP HITAM) */}
+                <div className="border border-slate-200 rounded-2xl bg-white p-5 space-y-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-bold">
+                          EDITOR TITIK GRAFIK & TOOLTIP
+                        </span>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                          Tabel Data Tahunan (Grafik 1 & 2 serta Kotak Tooltip Hitam)
+                        </h4>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Ubah angka di bawah ini langsung untuk mengubah nilai kurva dan popup kotak hitam saat diarahkan ke grafik (misal tahun 2024: Fauna <strong className="text-sky-600">7,502</strong> dan Flora <strong className="text-emerald-600">1,950</strong>).
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleAddYearlyRow}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl font-bold text-xs border border-sky-200 transition-colors shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Tambah Baris Tahun</span>
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
+                          <th className="py-2.5 px-3 whitespace-nowrap">Tahun / Periode</th>
+                          <th className="py-2.5 px-3 whitespace-nowrap text-sky-700 bg-sky-50/50">
+                            Indeks Fauna (H') <span className="font-normal text-[10px]">(Titik Biru / Tooltip)</span>
+                          </th>
+                          <th className="py-2.5 px-3 whitespace-nowrap text-emerald-700 bg-emerald-50/50">
+                            Indeks Flora (H') <span className="font-normal text-[10px]">(Titik Hijau / Tooltip)</span>
+                          </th>
+                          <th className="py-2.5 px-3 whitespace-nowrap">Individu Fauna</th>
+                          <th className="py-2.5 px-3 whitespace-nowrap">Individu Flora</th>
+                          <th className="py-2.5 px-3 whitespace-nowrap">Total Individu</th>
+                          <th className="py-2.5 px-3 whitespace-nowrap">Status Kategori</th>
+                          <th className="py-2.5 px-2 text-center whitespace-nowrap">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-slate-800">
+                        {yearlyRows.map((row, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
+                            {/* Tahun */}
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.period}
+                                onChange={e => handleYearlyRowChange(idx, 'period', e.target.value)}
+                                className="w-20 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 focus:bg-white"
+                                placeholder="2024"
+                              />
+                            </td>
+
+                            {/* Indeks Fauna */}
+                            <td className="py-2 px-3 bg-sky-50/20">
+                              <input
+                                type="number"
+                                value={row.fauna}
+                                onChange={e => handleYearlyRowChange(idx, 'fauna', Number(e.target.value))}
+                                className="w-28 bg-white border border-sky-300 rounded-lg px-2.5 py-1 text-xs font-bold text-sky-700 focus:ring-1 focus:ring-sky-500"
+                                placeholder="7502"
+                              />
+                            </td>
+
+                            {/* Indeks Flora */}
+                            <td className="py-2 px-3 bg-emerald-50/20">
+                              <input
+                                type="number"
+                                value={row.flora}
+                                onChange={e => handleYearlyRowChange(idx, 'flora', Number(e.target.value))}
+                                className="w-28 bg-white border border-emerald-300 rounded-lg px-2.5 py-1 text-xs font-bold text-emerald-700 focus:ring-1 focus:ring-emerald-500"
+                                placeholder="1950"
+                              />
+                            </td>
+
+                            {/* Individu Fauna */}
+                            <td className="py-2 px-3">
+                              <input
+                                type="number"
+                                value={row.fauna_ind ?? 0}
+                                onChange={e => handleYearlyRowChange(idx, 'fauna_ind', Number(e.target.value))}
+                                className="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:bg-white"
+                                placeholder="590"
+                              />
+                            </td>
+
+                            {/* Individu Flora */}
+                            <td className="py-2 px-3">
+                              <input
+                                type="number"
+                                value={row.flora_ind ?? 0}
+                                onChange={e => handleYearlyRowChange(idx, 'flora_ind', Number(e.target.value))}
+                                className="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:bg-white"
+                                placeholder="2340"
+                              />
+                            </td>
+
+                            {/* Total Individu */}
+                            <td className="py-2 px-3 font-semibold text-slate-700 text-xs">
+                              {Number(row.total || (Number(row.flora_ind || 0) + Number(row.fauna_ind || 0))).toLocaleString()}
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.status || 'Stabil'}
+                                onChange={e => handleYearlyRowChange(idx, 'status', e.target.value)}
+                                className="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-700 focus:bg-white"
+                                placeholder="Sangat Baik"
+                              />
+                            </td>
+
+                            {/* Hapus */}
+                            <td className="py-2 px-2 text-center">
+                              {yearlyRows.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveYearlyRow(idx)}
+                                  className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Hapus baris tahun ini"
+                                >
+                                  <Trash className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500 italic">
+                    💡 Anda juga dapat mengimpor seluruh tabel ini sekaligus dari file Excel melalui tab <strong>"Import Data Excel Indeks"</strong> di bagian atas.
+                  </p>
                 </div>
               </div>
 
