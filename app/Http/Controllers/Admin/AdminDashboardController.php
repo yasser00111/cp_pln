@@ -26,8 +26,10 @@ use App\Models\Setting;
 use App\Models\HeroSlider;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class AdminDashboardController extends Controller
 {
@@ -197,8 +199,8 @@ class AdminDashboardController extends Controller
     public function updateLandscapePhotos(Request $request)
     {
         $request->validate([
-            'commissioners_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
-            'directors_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'commissioners_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:15360',
+            'directors_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:15360',
             'management_commissioners_highlight_title' => 'nullable|string|max:255',
             'management_commissioners_highlight_name' => 'nullable|string|max:255',
             'management_directors_highlight_title' => 'nullable|string|max:255',
@@ -207,23 +209,40 @@ class AdminDashboardController extends Controller
             'management_section_desc' => 'nullable|string|max:1000',
         ]);
 
+        $targetDir = public_path('uploads/management');
+        if (!file_exists($targetDir)) {
+            @mkdir($targetDir, 0775, true);
+        }
+
         if ($request->hasFile('commissioners_photo')) {
             $file = $request->file('commissioners_photo');
             $filename = 'commissioners_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/management'), $filename);
+            try {
+                $file->move($targetDir, $filename);
+                $commPhotoUrl = '/uploads/management/' . $filename;
+            } catch (\Throwable $e) {
+                $path = $file->storeAs('uploads/management', $filename, 'public');
+                $commPhotoUrl = '/storage/' . $path;
+            }
             Setting::updateOrCreate(
                 ['key' => 'management_commissioners_photo'],
-                ['value' => '/uploads/management/' . $filename]
+                ['value' => $commPhotoUrl]
             );
         }
 
         if ($request->hasFile('directors_photo')) {
             $file = $request->file('directors_photo');
             $filename = 'directors_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/management'), $filename);
+            try {
+                $file->move($targetDir, $filename);
+                $dirPhotoUrl = '/uploads/management/' . $filename;
+            } catch (\Throwable $e) {
+                $path = $file->storeAs('uploads/management', $filename, 'public');
+                $dirPhotoUrl = '/storage/' . $path;
+            }
             Setting::updateOrCreate(
                 ['key' => 'management_directors_photo'],
-                ['value' => '/uploads/management/' . $filename]
+                ['value' => $dirPhotoUrl]
             );
         }
 
@@ -235,8 +254,13 @@ class AdminDashboardController extends Controller
                     if ($request->hasFile($fileKey)) {
                         $f = $request->file($fileKey);
                         $fn = 'comm_' . $item['id'] . '_' . time() . '.' . $f->getClientOriginalExtension();
-                        $f->move(public_path('uploads/management'), $fn);
-                        $item['photo'] = '/uploads/management/' . $fn;
+                        try {
+                            $f->move($targetDir, $fn);
+                            $item['photo'] = '/uploads/management/' . $fn;
+                        } catch (\Throwable $e) {
+                            $path = $f->storeAs('uploads/management', $fn, 'public');
+                            $item['photo'] = '/storage/' . $path;
+                        }
                     }
                 }
                 Setting::updateOrCreate(
@@ -254,8 +278,13 @@ class AdminDashboardController extends Controller
                     if ($request->hasFile($fileKey)) {
                         $f = $request->file($fileKey);
                         $fn = 'dir_' . $item['id'] . '_' . time() . '.' . $f->getClientOriginalExtension();
-                        $f->move(public_path('uploads/management'), $fn);
-                        $item['photo'] = '/uploads/management/' . $fn;
+                        try {
+                            $f->move($targetDir, $fn);
+                            $item['photo'] = '/uploads/management/' . $fn;
+                        } catch (\Throwable $e) {
+                            $path = $f->storeAs('uploads/management', $fn, 'public');
+                            $item['photo'] = '/storage/' . $path;
+                        }
                     }
                 }
                 Setting::updateOrCreate(
@@ -293,73 +322,89 @@ class AdminDashboardController extends Controller
             'birth_info' => 'nullable|string|max:255',
             'education' => 'nullable|string',
             'career_journey' => 'nullable|string',
-            'photo_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'photo_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg,bmp|max:15360',
         ]);
 
-        $settingKey = $request->board_type === 'commissioners' 
-            ? 'management_commissioners_data' 
-            : 'management_directors_data';
+        try {
+            $settingKey = $request->board_type === 'commissioners' 
+                ? 'management_commissioners_data' 
+                : 'management_directors_data';
 
-        $raw = Setting::where('key', $settingKey)->value('value');
-        $list = $raw ? json_decode($raw, true) : [];
-        if (!is_array($list)) {
-            $list = [];
-        }
-
-        $memberId = (int)$request->member_id;
-        if ($memberId <= 0) {
-            $existingIds = array_column($list, 'id');
-            $memberId = !empty($existingIds) ? max($existingIds) + 1 : 1;
-        }
-
-        $photoPath = null;
-        if ($request->hasFile('photo_file')) {
-            $file = $request->file('photo_file');
-            $filename = $request->board_type . '_' . $memberId . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/management'), $filename);
-            $photoPath = '/uploads/management/' . $filename;
-        }
-
-        $found = false;
-        $educationArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('education', '')))));
-        $careerArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('career_journey', '')))));
-
-        foreach ($list as &$m) {
-            if ((int)$m['id'] === $memberId) {
-                $m['name'] = $request->input('name');
-                $m['position'] = $request->input('position');
-                $m['birthInfo'] = $request->input('birth_info', '-');
-                $m['education'] = $educationArray;
-                $m['careerJourney'] = $careerArray;
-                if ($photoPath) {
-                    $m['photo'] = $photoPath;
-                }
-                $found = true;
-                break;
+            $raw = Setting::where('key', $settingKey)->value('value');
+            $list = $raw ? json_decode($raw, true) : [];
+            if (!is_array($list)) {
+                $list = [];
             }
+
+            $memberId = (int)$request->member_id;
+            if ($memberId <= 0) {
+                $existingIds = array_column($list, 'id');
+                $memberId = !empty($existingIds) ? max($existingIds) + 1 : 1;
+            }
+
+            $photoPath = null;
+            if ($request->hasFile('photo_file')) {
+                $file = $request->file('photo_file');
+                $filename = $request->board_type . '_' . $memberId . '_' . time() . '.' . $file->getClientOriginalExtension();
+                
+                $targetDir = public_path('uploads/management');
+                if (!file_exists($targetDir)) {
+                    @mkdir($targetDir, 0775, true);
+                }
+
+                try {
+                    $file->move($targetDir, $filename);
+                    $photoPath = '/uploads/management/' . $filename;
+                } catch (\Throwable $e) {
+                    $path = $file->storeAs('uploads/management', $filename, 'public');
+                    $photoPath = '/storage/' . $path;
+                }
+            }
+
+            $found = false;
+            $educationArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('education', '')))));
+            $careerArray = array_values(array_filter(array_map('trim', explode("\n", $request->input('career_journey', '')))));
+
+            foreach ($list as &$m) {
+                if ((int)$m['id'] === $memberId) {
+                    $m['name'] = $request->input('name');
+                    $m['position'] = $request->input('position');
+                    $m['birthInfo'] = $request->input('birth_info', '-');
+                    $m['education'] = $educationArray;
+                    $m['careerJourney'] = $careerArray;
+                    if ($photoPath) {
+                        $m['photo'] = $photoPath;
+                    }
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                $newItem = [
+                    'id' => $memberId,
+                    'name' => $request->input('name'),
+                    'position' => $request->input('position'),
+                    'birthInfo' => $request->input('birth_info', '-'),
+                    'education' => $educationArray,
+                    'careerJourney' => $careerArray,
+                    'photo' => $photoPath ?? 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
+                    'zone' => ['left' => '0%', 'width' => '14%'],
+                    'arrowPos' => ['left' => '10%', 'top' => '70%'],
+                ];
+                $list[] = $newItem;
+            }
+
+            Setting::updateOrCreate(
+                ['key' => $settingKey],
+                ['value' => json_encode($list, JSON_PRETTY_PRINT)]
+            );
+
+            return redirect()->back()->with('success', 'Data ' . $request->name . ' berhasil disimpan!');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error saving board member: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
-
-        if (!$found) {
-            $newItem = [
-                'id' => $memberId,
-                'name' => $request->input('name'),
-                'position' => $request->input('position'),
-                'birthInfo' => $request->input('birth_info', '-'),
-                'education' => $educationArray,
-                'careerJourney' => $careerArray,
-                'photo' => $photoPath ?? 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
-                'zone' => ['left' => '0%', 'width' => '14%'],
-                'arrowPos' => ['left' => '10%', 'top' => '70%'],
-            ];
-            $list[] = $newItem;
-        }
-
-        Setting::updateOrCreate(
-            ['key' => $settingKey],
-            ['value' => json_encode($list, JSON_PRETTY_PRINT)]
-        );
-
-        return redirect()->back()->with('success', 'Data ' . $request->name . ' berhasil disimpan!');
     }
 
     public function deleteBoardMember(Request $request)
