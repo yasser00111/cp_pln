@@ -808,11 +808,6 @@ export default function Pimpinan({ leaders }: Props) {
                 {modalTab === 'profile' && (
                   <div className="space-y-6 text-xs sm:text-sm">
                     <div>
-                      <h5 className="font-semibold text-slate-500 mb-1">Place and Date of Birth</h5>
-                      <p className="text-slate-900 font-medium text-sm">{selectedPerson.birthInfo || '-'}</p>
-                    </div>
-
-                    <div>
                       <h5 className="font-semibold text-slate-500 mb-2">Education History</h5>
                       <ul className="space-y-3">
                         {selectedPerson.education && selectedPerson.education.length > 0 ? (
