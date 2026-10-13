@@ -24,9 +24,24 @@ import {
   Calendar,
   Layers
 } from 'lucide-react';
+import { defaultDetailedCensusMatrix } from '@/Pages/Admin/Biodiversity/Index';
 
 export default function KehatiIndeks() {
   const { settings, globalCms } = usePage<any>().props;
+  const [activeTableTab, setActiveTableTab] = useState<'rekap' | 'flora' | 'fauna' | 'biota'>('rekap');
+
+  // Detailed Census Matrix (Flora 14, Fauna 14, Biota Perairan)
+  let detailedMatrix: any = null;
+  try {
+    if (settings?.bio_data_detailed_matrix) {
+      detailedMatrix = typeof settings.bio_data_detailed_matrix === 'string'
+        ? JSON.parse(settings.bio_data_detailed_matrix)
+        : settings.bio_data_detailed_matrix;
+    }
+  } catch (e) {}
+  if (!detailedMatrix || !detailedMatrix.flora) {
+    detailedMatrix = defaultDetailedCensusMatrix;
+  }
 
   // 1. Data Grafik 1: Kecenderungan Absolut / Indeks Kehati (2022 - 2026)
   let indexHistory = [];
@@ -35,11 +50,11 @@ export default function KehatiIndeks() {
   } catch (e) {}
   if (!indexHistory || indexHistory.length === 0) {
     indexHistory = [
-      { period: '2022', fauna: 5600, flora: 2300 },
-      { period: '2023', fauna: 7200, flora: 1800 },
-      { period: '2024', fauna: 7502, flora: 1950 },
-      { period: '2025', fauna: 6300, flora: 1600 },
-      { period: '2026', fauna: 4100, flora: 2700 },
+      { period: '2022', fauna: 5669, flora: 2350 },
+      { period: '2023', fauna: 7366, flora: 1755 },
+      { period: '2024', fauna: 7502, flora: 1985 },
+      { period: '2025', fauna: 6170, flora: 1569 },
+      { period: '2026', fauna: 6236, flora: 2751 },
     ];
   } else {
     // Harmonize keys if user stored floraH / faunaH
@@ -57,11 +72,11 @@ export default function KehatiIndeks() {
   } catch (e) {}
   if (!individualHistory || individualHistory.length === 0 || individualHistory[0]?.month) {
     individualHistory = [
-      { period: '2022', fauna: 380, flora: 1420, total: 1800 },
-      { period: '2023', fauna: 460, flora: 1850, total: 2310 },
-      { period: '2024', fauna: 590, flora: 2340, total: 2930 },
-      { period: '2025', fauna: 740, flora: 2980, total: 3720 },
-      { period: '2026', fauna: 920, flora: 3650, total: 4570 },
+      { period: '2022', fauna: 5669, flora: 2350, total: 8019 },
+      { period: '2023', fauna: 7366, flora: 1755, total: 9121 },
+      { period: '2024', fauna: 7502, flora: 1985, total: 9487 },
+      { period: '2025', fauna: 6170, flora: 1569, total: 7739 },
+      { period: '2026', fauna: 6236, flora: 2751, total: 8987 },
     ];
   } else {
     individualHistory = individualHistory.map((item: any) => ({
@@ -95,8 +110,83 @@ export default function KehatiIndeks() {
     });
   }
 
-  // Handler Download Excel untuk Pengunjung Publik
+  // Handler Download Excel untuk Pengunjung Publik (Mendukung Multi-Tabel Sensus Lengkap & Rekap Tahunan)
   const handleDownloadPublicExcel = () => {
+    const years = ['2022', '2023', '2024', '2025', '2026*'];
+    const data: any[][] = [];
+
+    // 1. Total Flora
+    data.push(['Total Flora']);
+    data.push(['No', 'Nama', 'Nama lokal', 'Satuan', ...years]);
+    const floraRows = detailedMatrix?.flora || defaultDetailedCensusMatrix.flora;
+    floraRows.forEach((r: any, idx: number) => {
+      data.push([
+        r.no || idx + 1,
+        r.nama || '',
+        r.nama_lokal || '',
+        r.satuan || 'Batang',
+        Number(r['2022']) || 0,
+        Number(r['2023']) || 0,
+        Number(r['2024']) || 0,
+        Number(r['2025']) || 0,
+        Number(r['2026'] ?? r['2026*']) || 0,
+      ]);
+    });
+    const fTot = detailedMatrix?.floraTotals || defaultDetailedCensusMatrix.floraTotals;
+    data.push(['TOTAL', '', '', '', fTot['2022'] ?? 2350, fTot['2023'] ?? 1755, fTot['2024'] ?? 1985, fTot['2025'] ?? 1569, fTot['2026'] ?? 2751]);
+    data.push([]);
+    const aTot = detailedMatrix?.area || defaultDetailedCensusMatrix.area;
+    data.push(['Status Keanekaragaman Hayati', 'Total Luasan Area Konservasi', '', 'Ha', aTot['2022'] ?? '1,952', aTot['2023'] ?? '1,952', aTot['2024'] ?? '1,952', aTot['2025'] ?? '1,952', aTot['2026'] ?? '2,394']);
+    data.push([]);
+
+    // 2. Total Fauna
+    data.push(['Total Fauna']);
+    data.push(['No', 'Nama', 'Nama lokal', 'Satuan', ...years]);
+    const faunaRows = detailedMatrix?.fauna || defaultDetailedCensusMatrix.fauna;
+    faunaRows.forEach((r: any, idx: number) => {
+      data.push([
+        r.no || idx + 1,
+        r.nama || '',
+        r.nama_lokal || '',
+        r.satuan || 'Ekor',
+        Number(r['2022']) || 0,
+        Number(r['2023']) || 0,
+        Number(r['2024']) || 0,
+        Number(r['2025']) || 0,
+        Number(r['2026'] ?? r['2026*']) || 0,
+      ]);
+    });
+    const faTot = detailedMatrix?.faunaTotals || defaultDetailedCensusMatrix.faunaTotals;
+    data.push(['TOTAL', '', '', '', faTot['2022'] ?? 5669, faTot['2023'] ?? 7366, faTot['2024'] ?? 7502, faTot['2025'] ?? 6170, faTot['2026'] ?? 6236]);
+    data.push([]);
+    data.push(['Status Keanekaragaman Hayati', 'Total Luasan Area Konservasi', '', 'Ha', aTot['2022'] ?? '1,952', aTot['2023'] ?? '1,952', aTot['2024'] ?? '1,952', aTot['2025'] ?? '1,952', aTot['2026'] ?? '2,394']);
+    data.push([]);
+
+    // 3. Biota Perairan
+    data.push(['Biota Perairan']);
+    data.push(['No', 'Nama', 'Nama lokal', 'Satuan', ...years]);
+    const biotaRows = detailedMatrix?.biota || defaultDetailedCensusMatrix.biota;
+    biotaRows.forEach((r: any, idx: number) => {
+      data.push([
+        r.no || idx + 1,
+        r.nama || '',
+        r.nama_lokal || '',
+        r.satuan || 'Ekor',
+        Number(r['2022']) || 0,
+        Number(r['2023']) || 0,
+        Number(r['2024']) || 0,
+        Number(r['2025']) || 0,
+        Number(r['2026'] ?? r['2026*']) || 0,
+      ]);
+    });
+    const bTot = detailedMatrix?.biotaTotals || defaultDetailedCensusMatrix.biotaTotals;
+    data.push(['TOTAL', '', '', '', bTot['2022'] ?? 670, bTot['2023'] ?? 920, bTot['2024'] ?? 1090, bTot['2025'] ?? 1080, bTot['2026'] ?? 1210]);
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sensus Kehati PLN Barru');
+
+    // Sheet 2: Rekapitulasi Tahunan
     const exportRows = excelTableData.map((row: any, idx: number) => ({
       'No': idx + 1,
       'Tahun / Periode': row.period,
@@ -107,11 +197,10 @@ export default function KehatiIndeks() {
       'Total Individu Terdata': Number(row.total ?? ((Number(row.flora_ind || 0) + Number(row.fauna_ind || 0)))).toLocaleString(),
       'Status / Keterangan': row.status || 'Stabil'
     }));
+    const wsSummary = XLSX.utils.json_to_sheet(exportRows);
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Rekapitulasi Tahunan');
 
-    const ws = XLSX.utils.json_to_sheet(exportRows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Rekap Indeks Kehati');
-    XLSX.writeFile(wb, `Data_Indeks_Biodiversity_PLN_UBP_Barru.xlsx`);
+    XLSX.writeFile(wb, `Data_Sensus_Indeks_Biodiversity_PLN_Barru.xlsx`);
   };
 
   // Helper check for the 7502 peak in index history
@@ -398,7 +487,7 @@ export default function KehatiIndeks() {
                   type="button"
                   onClick={handleDownloadPublicExcel}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-600/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-                  title="Unduh seluruh data tabel ke file Microsoft Excel"
+                  title="Unduh seluruh data tabel sensus resmi ke file Microsoft Excel (.xlsx)"
                 >
                   <Download className="w-4 h-4 stroke-[2.5]" />
                   <span>Unduh Data Excel (.xlsx)</span>
@@ -406,73 +495,320 @@ export default function KehatiIndeks() {
               </div>
             </div>
 
-            {/* Tabel Spreadsheet */}
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-[#064e3b] text-white uppercase text-[10px] font-bold tracking-wider">
-                  <tr>
-                    <th className="py-3.5 px-4 text-center">No</th>
-                    <th className="py-3.5 px-4">Tahun / Periode</th>
-                    <th className="py-3.5 px-4 text-right">Indeks Flora (H')</th>
-                    <th className="py-3.5 px-4 text-right">Indeks Fauna (H')</th>
-                    <th className="py-3.5 px-4 text-right">Individu Flora</th>
-                    <th className="py-3.5 px-4 text-right">Individu Fauna</th>
-                    <th className="py-3.5 px-4 text-right">Total Populasi</th>
-                    <th className="py-3.5 px-4 text-center">Status Kehati</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {excelTableData.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-emerald-50/40 transition-colors">
-                      <td className="py-3.5 px-4 text-center font-bold text-slate-400">{idx + 1}</td>
-                      <td className="py-3.5 px-4 font-black text-slate-900 text-sm">{row.period}</td>
-                      <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 text-sm">
-                        {Number(row.flora).toLocaleString()}
+            {/* Sub-Tabs Navigasi Tabel */}
+            <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setActiveTableTab('rekap')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  activeTableTab === 'rekap'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>📊 Rekapitulasi Tahunan (Grafik & Indeks)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTableTab('flora')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  activeTableTab === 'flora'
+                    ? 'bg-[#064e3b] text-white shadow-sm'
+                    : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                }`}
+              >
+                <Leaf className="w-3.5 h-3.5 text-emerald-300" />
+                <span>🌿 Sensus Total Flora ({(detailedMatrix?.flora || defaultDetailedCensusMatrix.flora).length} Spesies)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTableTab('fauna')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  activeTableTab === 'fauna'
+                    ? 'bg-[#0b3866] text-white shadow-sm'
+                    : 'bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-200'
+                }`}
+              >
+                <span>🐾 Sensus Total Fauna ({(detailedMatrix?.fauna || defaultDetailedCensusMatrix.fauna).length} Spesies)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTableTab('biota')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  activeTableTab === 'biota'
+                    ? 'bg-teal-700 text-white shadow-sm'
+                    : 'bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200'
+                }`}
+              >
+                <span>🌊 Biota Perairan ({(detailedMatrix?.biota || defaultDetailedCensusMatrix.biota).length} Spesies)</span>
+              </button>
+            </div>
+
+            {/* TAB 1: REKAPITULASI TAHUNAN */}
+            {activeTableTab === 'rekap' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+                <table className="w-full text-left text-xs text-slate-700">
+                  <thead className="bg-[#0b3866] text-white uppercase text-[10px] font-bold tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4 text-center">No</th>
+                      <th className="py-3.5 px-4">Tahun / Periode</th>
+                      <th className="py-3.5 px-4 text-right">Indeks Flora (H')</th>
+                      <th className="py-3.5 px-4 text-right">Indeks Fauna (H')</th>
+                      <th className="py-3.5 px-4 text-right">Individu Flora</th>
+                      <th className="py-3.5 px-4 text-right">Individu Fauna</th>
+                      <th className="py-3.5 px-4 text-right">Total Populasi</th>
+                      <th className="py-3.5 px-4 text-center">Status Kehati</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {excelTableData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-emerald-50/40 transition-colors">
+                        <td className="py-3.5 px-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                        <td className="py-3.5 px-4 font-black text-slate-900 text-sm">{row.period}</td>
+                        <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 text-sm">
+                          {Number(row.flora).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-mono font-bold text-sky-600 text-sm">
+                          {Number(row.fauna).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-mono text-slate-700">
+                          {Number(row.flora_ind ?? row.flora).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-mono text-slate-700">
+                          {Number(row.fauna_ind ?? row.fauna).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-mono font-black text-slate-900 bg-slate-50/80 text-sm">
+                          {Number(row.total ?? ((Number(row.flora_ind || 0) + Number(row.fauna_ind || 0)))).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100/70 text-emerald-800 border border-emerald-300">
+                            {row.status || 'Stabil'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-slate-50 border-t-2 border-slate-200 text-slate-700 font-bold text-xs">
+                    <tr>
+                      <td colSpan={2} className="py-3.5 px-4 uppercase text-[10px] text-slate-500 font-extrabold">
+                        Rata-Rata / Puncak
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono font-bold text-sky-600 text-sm">
-                        {Number(row.fauna).toLocaleString()}
+                      <td className="py-3.5 px-4 text-right font-mono text-emerald-700">
+                        {(excelTableData.reduce((acc, r) => acc + Number(r.flora || 0), 0) / (excelTableData.length || 1)).toFixed(0)} (Rata-rata)
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-slate-700">
-                        {Number(row.flora_ind ?? row.flora).toLocaleString()}
+                      <td className="py-3.5 px-4 text-right font-mono text-sky-700">
+                        {(excelTableData.reduce((acc, r) => acc + Number(r.fauna || 0), 0) / (excelTableData.length || 1)).toFixed(0)} (Rata-rata)
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-slate-700">
-                        {Number(row.fauna_ind ?? row.fauna).toLocaleString()}
+                      <td colSpan={2} className="py-3.5 px-4 text-right text-slate-500 text-[10px]">
+                        Populasi Puncak Terdata:
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono font-black text-slate-900 bg-slate-50/80 text-sm">
-                        {Number(row.total ?? ((Number(row.flora_ind || 0) + Number(row.fauna_ind || 0)))).toLocaleString()}
+                      <td className="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-sm">
+                        {Math.max(...excelTableData.map(r => Number(r.total || ((Number(r.flora_ind || 0) + Number(r.fauna_ind || 0)))))).toLocaleString()}
                       </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100/70 text-emerald-800 border border-emerald-300">
-                          {row.status || 'Stabil'}
-                        </span>
+                      <td className="py-3.5 px-4 text-center text-[10px] text-emerald-600 font-bold">
+                        ✓ Terverifikasi
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-slate-50 border-t-2 border-slate-200 text-slate-700 font-bold text-xs">
-                  <tr>
-                    <td colSpan={2} className="py-3.5 px-4 uppercase text-[10px] text-slate-500 font-extrabold">
-                      Rata-Rata / Puncak
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-mono text-emerald-700">
-                      {(excelTableData.reduce((acc, r) => acc + Number(r.flora || 0), 0) / (excelTableData.length || 1)).toFixed(0)} (Rata-rata)
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-mono text-sky-700">
-                      {(excelTableData.reduce((acc, r) => acc + Number(r.fauna || 0), 0) / (excelTableData.length || 1)).toFixed(0)} (Rata-rata)
-                    </td>
-                    <td colSpan={2} className="py-3.5 px-4 text-right text-slate-500 text-[10px]">
-                      Populasi Puncak Terdata:
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-sm">
-                      {Math.max(...excelTableData.map(r => Number(r.total || ((Number(r.flora_ind || 0) + Number(r.fauna_ind || 0)))))).toLocaleString()}
-                    </td>
-                    <td className="py-3.5 px-4 text-center text-[10px] text-emerald-600 font-bold">
-                      ✓ Terverifikasi
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 2: TOTAL FLORA */}
+            {activeTableTab === 'flora' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+                <table className="w-full text-left text-xs text-slate-700">
+                  <thead className="bg-[#0b3866] text-white uppercase text-[10px] font-bold tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-3 text-center">No</th>
+                      <th className="py-3.5 px-4">Nama (Latin)</th>
+                      <th className="py-3.5 px-4">Nama lokal</th>
+                      <th className="py-3.5 px-3">Satuan</th>
+                      <th className="py-3.5 px-3 text-right">2022</th>
+                      <th className="py-3.5 px-3 text-right">2023</th>
+                      <th className="py-3.5 px-3 text-right">2024</th>
+                      <th className="py-3.5 px-3 text-right">2025</th>
+                      <th className="py-3.5 px-3 text-right">2026*</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {(detailedMatrix?.flora || defaultDetailedCensusMatrix.flora).map((item: any, idx: number) => (
+                      <tr key={idx} className="hover:bg-emerald-50/40 transition-colors">
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-400">{item.no || idx + 1}</td>
+                        <td className="py-2.5 px-4 font-bold text-slate-900 italic">{item.nama}</td>
+                        <td className="py-2.5 px-4 text-slate-700">{item.nama_lokal}</td>
+                        <td className="py-2.5 px-3 text-slate-500">{item.satuan}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2022'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2023'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2024'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2025'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2026'] ?? item['2026*'] ?? 0).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                    {/* TOTAL Row */}
+                    <tr className="bg-emerald-50/90 font-black text-slate-900 border-t-2 border-emerald-600">
+                      <td colSpan={4} className="py-3.5 px-4 text-center uppercase tracking-wider font-extrabold text-emerald-950">
+                        TOTAL
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-emerald-800 text-sm font-black">
+                        {Number(detailedMatrix?.floraTotals?.['2022'] ?? defaultDetailedCensusMatrix.floraTotals['2022']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-emerald-800 text-sm font-black">
+                        {Number(detailedMatrix?.floraTotals?.['2023'] ?? defaultDetailedCensusMatrix.floraTotals['2023']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-emerald-800 text-sm font-black">
+                        {Number(detailedMatrix?.floraTotals?.['2024'] ?? defaultDetailedCensusMatrix.floraTotals['2024']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-emerald-800 text-sm font-black">
+                        {Number(detailedMatrix?.floraTotals?.['2025'] ?? defaultDetailedCensusMatrix.floraTotals['2025']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-emerald-800 text-sm font-black">
+                        {Number(detailedMatrix?.floraTotals?.['2026'] ?? defaultDetailedCensusMatrix.floraTotals['2026']).toLocaleString()}
+                      </td>
+                    </tr>
+                    {/* Luasan Area Konservasi Row */}
+                    <tr className="bg-slate-50 font-bold text-slate-700 text-[11px] border-t border-slate-200">
+                      <td colSpan={3} className="py-3 px-4 text-slate-600">
+                        Status Keanekaragaman Hayati / Total Luasan Area Konservasi
+                      </td>
+                      <td className="py-3 px-3 text-slate-500 font-normal">Ha</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2022'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2023'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2024'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2025'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2026'] || '2,394'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 3: TOTAL FAUNA */}
+            {activeTableTab === 'fauna' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+                <table className="w-full text-left text-xs text-slate-700">
+                  <thead className="bg-[#0b3866] text-white uppercase text-[10px] font-bold tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-3 text-center">No</th>
+                      <th className="py-3.5 px-4">Nama (Latin)</th>
+                      <th className="py-3.5 px-4">Nama lokal</th>
+                      <th className="py-3.5 px-3">Satuan</th>
+                      <th className="py-3.5 px-3 text-right">2022</th>
+                      <th className="py-3.5 px-3 text-right">2023</th>
+                      <th className="py-3.5 px-3 text-right">2024</th>
+                      <th className="py-3.5 px-3 text-right">2025</th>
+                      <th className="py-3.5 px-3 text-right">2026*</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {(detailedMatrix?.fauna || defaultDetailedCensusMatrix.fauna).map((item: any, idx: number) => (
+                      <tr key={idx} className="hover:bg-sky-50/40 transition-colors">
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-400">{item.no || idx + 1}</td>
+                        <td className="py-2.5 px-4 font-bold text-slate-900 italic">{item.nama}</td>
+                        <td className="py-2.5 px-4 text-slate-700">{item.nama_lokal}</td>
+                        <td className="py-2.5 px-3 text-slate-500">{item.satuan}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2022'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2023'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2024'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2025'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2026'] ?? item['2026*'] ?? 0).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                    {/* TOTAL Row */}
+                    <tr className="bg-sky-50/90 font-black text-slate-900 border-t-2 border-sky-600">
+                      <td colSpan={4} className="py-3.5 px-4 text-center uppercase tracking-wider font-extrabold text-sky-950">
+                        TOTAL
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-sky-800 text-sm font-black">
+                        {Number(detailedMatrix?.faunaTotals?.['2022'] ?? defaultDetailedCensusMatrix.faunaTotals['2022']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-sky-800 text-sm font-black">
+                        {Number(detailedMatrix?.faunaTotals?.['2023'] ?? defaultDetailedCensusMatrix.faunaTotals['2023']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-sky-800 text-sm font-black">
+                        {Number(detailedMatrix?.faunaTotals?.['2024'] ?? defaultDetailedCensusMatrix.faunaTotals['2024']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-sky-800 text-sm font-black">
+                        {Number(detailedMatrix?.faunaTotals?.['2025'] ?? defaultDetailedCensusMatrix.faunaTotals['2025']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-sky-800 text-sm font-black">
+                        {Number(detailedMatrix?.faunaTotals?.['2026'] ?? defaultDetailedCensusMatrix.faunaTotals['2026']).toLocaleString()}
+                      </td>
+                    </tr>
+                    {/* Luasan Area Konservasi Row */}
+                    <tr className="bg-slate-50 font-bold text-slate-700 text-[11px] border-t border-slate-200">
+                      <td colSpan={3} className="py-3 px-4 text-slate-600">
+                        Status Keanekaragaman Hayati / Total Luasan Area Konservasi
+                      </td>
+                      <td className="py-3 px-3 text-slate-500 font-normal">Ha</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2022'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2023'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2024'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2025'] || '1,952'}</td>
+                      <td className="py-3 px-3 text-right font-mono">{detailedMatrix?.area?.['2026'] || '2,394'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 4: BIOTA PERAIRAN */}
+            {activeTableTab === 'biota' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
+                <table className="w-full text-left text-xs text-slate-700">
+                  <thead className="bg-[#0b3866] text-white uppercase text-[10px] font-bold tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-3 text-center">No</th>
+                      <th className="py-3.5 px-4">Nama (Latin)</th>
+                      <th className="py-3.5 px-4">Nama lokal</th>
+                      <th className="py-3.5 px-3">Satuan</th>
+                      <th className="py-3.5 px-3 text-right">2022</th>
+                      <th className="py-3.5 px-3 text-right">2023</th>
+                      <th className="py-3.5 px-3 text-right">2024</th>
+                      <th className="py-3.5 px-3 text-right">2025</th>
+                      <th className="py-3.5 px-3 text-right">2026*</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {(detailedMatrix?.biota || defaultDetailedCensusMatrix.biota).map((item: any, idx: number) => (
+                      <tr key={idx} className="hover:bg-teal-50/40 transition-colors">
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-400">{item.no || idx + 1}</td>
+                        <td className="py-2.5 px-4 font-bold text-slate-900 italic">{item.nama}</td>
+                        <td className="py-2.5 px-4 text-slate-700">{item.nama_lokal}</td>
+                        <td className="py-2.5 px-3 text-slate-500">{item.satuan}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2022'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2023'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2024'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2025'] || 0).toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-800">{Number(item['2026'] ?? item['2026*'] ?? 0).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                    {/* TOTAL Row */}
+                    <tr className="bg-teal-50/90 font-black text-slate-900 border-t-2 border-teal-600">
+                      <td colSpan={4} className="py-3.5 px-4 text-center uppercase tracking-wider font-extrabold text-teal-950">
+                        TOTAL
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-teal-800 text-sm font-black">
+                        {Number(detailedMatrix?.biotaTotals?.['2022'] ?? defaultDetailedCensusMatrix.biotaTotals['2022']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-teal-800 text-sm font-black">
+                        {Number(detailedMatrix?.biotaTotals?.['2023'] ?? defaultDetailedCensusMatrix.biotaTotals['2023']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-teal-800 text-sm font-black">
+                        {Number(detailedMatrix?.biotaTotals?.['2024'] ?? defaultDetailedCensusMatrix.biotaTotals['2024']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-teal-800 text-sm font-black">
+                        {Number(detailedMatrix?.biotaTotals?.['2025'] ?? defaultDetailedCensusMatrix.biotaTotals['2025']).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-3 text-right font-mono text-teal-800 text-sm font-black">
+                        {Number(detailedMatrix?.biotaTotals?.['2026'] ?? defaultDetailedCensusMatrix.biotaTotals['2026']).toLocaleString()}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-2 pt-2">
               <span className="inline-flex items-center gap-1.5">
