@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { News, Category } from '@/Types';
 import { FileText, Search, Calendar, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 

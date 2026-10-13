@@ -20,7 +20,9 @@ import {
   FileSpreadsheet,
   CheckCircle2,
   AlertCircle,
-  Table as TableIcon
+  Table as TableIcon,
+  ExternalLink,
+  Trash
 } from 'lucide-react';
 
 export interface DocumentItem {
@@ -31,6 +33,11 @@ export interface DocumentItem {
   file_path: string;
   file_size: string;
   created_at: string;
+}
+
+interface Props {
+  species: BiodiversitySpecies[];
+  reports?: DocumentItem[];
 }
 
 export const defaultDetailedCensusMatrix = {

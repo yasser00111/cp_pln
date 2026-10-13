@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 interface ContentItem {
-  id: number;
+  id?: number;
   section_key: string;
   title: string | null;
   body_text: string | null;
@@ -770,9 +770,9 @@ const CATEGORIES = [
   { id: 'contact', name: 'Kontak', icon: Phone, desc: 'Alamat & Narahubung' },
 ] as const;
 
-export default function AdminContentIndex({ contents }: Props) {
+export default function AdminContentIndex({ contents = {} }: Props) {
   const initialData = useMemo(() => {
-    const list: ContentItem[] = Object.values(contents);
+    const list: ContentItem[] = Object.values(contents || {});
     const existingKeys = new Set(list.map((i) => i.section_key));
     Object.keys(SECTION_REGISTRY).forEach((secKey) => {
       if (!existingKeys.has(secKey)) {
@@ -967,7 +967,7 @@ export default function AdminContentIndex({ contents }: Props) {
           </div>
 
           <div className="space-y-6">
-            {(selectedCategory === 'biodiversity' || selectedCategory === 'all') && (
+            {(activeCategory === 'biodiversity' || activeCategory === 'all') && (
               <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
