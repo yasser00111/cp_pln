@@ -82,24 +82,12 @@ export default function CSR({ programs, cms }: Props) {
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                     {/* Sisi Foto Program */}
                     <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : 'lg:order-2'} w-full`}>
-                      <div
-                        onClick={() => setSelectedPhoto({ title: cs.title, image: photoUrl, location: cs.location })}
-                        className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-slate-100 shadow-md group cursor-pointer border border-slate-200"
-                      >
+                      <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-slate-100 shadow-md border border-slate-200">
                         <img
                           src={photoUrl}
                           alt={cs.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                        {/* Floating Action Badge */}
-                        <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-[11px] font-semibold shadow-lg group-hover:bg-sky-600 transition-colors">
-                            <Maximize2 className="w-3.5 h-3.5" />
-                            <span>Perbesar</span>
-                          </div>
-                        </div>
                       </div>
                     </div>
 

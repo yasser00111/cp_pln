@@ -648,38 +648,14 @@ export default function Pimpinan({ leaders }: Props) {
                     className="p-6 sm:p-8 lg:p-10 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300"
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                      {/* Sisi Foto Pimpinan */}
+                      {/* Sisi Foto Pimpinan (Hanya Gambar Bersih Tanpa Preview Saat Kursor ke Gambar) */}
                       <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : 'lg:order-2'} w-full`}>
-                        <div
-                          onClick={() => {
-                            openPersonModal({
-                              id: leader.id as any,
-                              name: leader.name,
-                              position: leader.position,
-                              photo: leader.photo || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80',
-                              birthInfo: leader.birth_info || '-',
-                              education: Array.isArray(leader.education) ? leader.education : (leader.education ? [leader.education] : []),
-                              careerJourney: Array.isArray(leader.career_journey) ? leader.career_journey : (leader.career_journey ? [leader.career_journey] : (leader.bio ? [leader.bio] : [])),
-                              zone: { left: '0%', width: '100%' },
-                              arrowPos: { left: '50%', top: '50%' }
-                            });
-                          }}
-                          className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-slate-100 shadow-md group cursor-pointer border border-slate-200"
-                        >
+                        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-slate-100 shadow-md border border-slate-200">
                           <img
                             src={leader.photo || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80'}
                             alt={leader.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                          {/* Floating Action Zoom Icon */}
-                          <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-[11px] font-semibold shadow-lg group-hover:bg-[#008ba3] transition-colors">
-                              <ArrowUpRight className="w-3.5 h-3.5" />
-                              <span>Lihat Biodata</span>
-                            </div>
-                          </div>
                         </div>
                       </div>
 
