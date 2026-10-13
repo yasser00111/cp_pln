@@ -18,7 +18,8 @@ import {
   Image as ImageIcon,
   Check,
   Layers,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 
 interface ContentItem {
@@ -790,6 +791,7 @@ export default function AdminContentIndex({ contents = {} }: Props) {
   const [formData, setFormData] = useState<ContentItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showKehatiGuide, setShowKehatiGuide] = useState(true);
 
   // Filter state
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -967,25 +969,44 @@ export default function AdminContentIndex({ contents = {} }: Props) {
           </div>
 
           <div className="space-y-6">
-            {(activeCategory === 'biodiversity' || activeCategory === 'all') && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold">PANDUAN ADMIN</span>
-                    <h4 className="text-xs sm:text-sm font-bold text-emerald-950 font-heading">
-                      Ingin Mengedit 4 Kartu Metrik Indeks Kehati (Shannon-Wiener Flora/Fauna, Kemerataan E, Dominansi D) atau Import Excel?
-                    </h4>
+            {activeCategory === 'biodiversity' && showKehatiGuide && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/60 to-white border border-emerald-200/90 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs relative animate-fadeIn">
+                <div className="flex items-start gap-3.5 pr-8 md:pr-0">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                    <Leaf className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-emerald-800">
-                    Data angka nilai, target badge, serta grafik indeks dikelola secara khusus dengan formulir interaktif dan import Excel di menu <strong>Kelola Keanekaragaman Hayati</strong>.
-                  </p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold tracking-wider uppercase whitespace-nowrap shadow-2xs">
+                        PANDUAN ADMIN
+                      </span>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-heading">
+                        Ingin Mengedit Angka 4 Kartu Metrik Indeks Kehati atau Import Excel?
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                      Data angka nilai indeks (Shannon–Wiener Flora/Fauna, Kemerataan E, Dominansi D) serta sensus flora & fauna dikelola secara interaktif di menu <strong>Kelola Keanekaragaman Hayati</strong>.
+                    </p>
+                  </div>
                 </div>
-                <a
-                  href="/admin/biodiversity"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition-colors whitespace-nowrap self-start sm:self-auto cursor-pointer"
-                >
-                  <span>Buka Kelola Kehati ↗</span>
-                </a>
+
+                <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
+                  <a
+                    href="/admin/biodiversity"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl font-bold text-xs shadow-sm hover:shadow transition-all whitespace-nowrap cursor-pointer"
+                  >
+                    <span>Buka Kelola Kehati</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setShowKehatiGuide(false)}
+                    className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-emerald-100/50 transition-colors cursor-pointer"
+                    title="Tutup panduan ini"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
 
