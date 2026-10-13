@@ -88,7 +88,7 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
     biodiversity_data_info_title: settings?.biodiversity_data_info_title || 'Informasi Terkait & Kecenderungan Sumber Data Hayati dan Sumber Biologi',
     biodiversity_data_info_desc: settings?.biodiversity_data_info_desc || 'Data inventarisasi komprehensif flora dan fauna di kawasan PLTU Barru, disertai gambar dokumentasi spesimen dan matriks tabel status perlindungan (IUCN / CITES / Regulasi LHK).',
 
-    // 4 Statistic Cards (synced for both /biodiversity/info and /biodiversity/kehati-indeks)
+    // 4 Statistic Cards (synced for both /biodiversity/info and /biodiversity)
     bio_stat_1_badge: settings?.bio_stat_1_badge || settings?.bio_info_stat_1_badge || '34+',
     bio_stat_1_title: settings?.bio_stat_1_title || settings?.bio_info_stat_1_title || 'Spesies Teridentifikasi',
     bio_stat_1_desc: settings?.bio_stat_1_desc || settings?.bio_info_stat_1_desc || 'Flora mangrove & fauna perlindungan teridentifikasi.',
@@ -101,6 +101,27 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
     bio_stat_4_badge: settings?.bio_stat_4_badge || settings?.bio_info_stat_4_badge || 'Stabil',
     bio_stat_4_title: settings?.bio_stat_4_title || settings?.bio_info_stat_4_title || 'Tren Populasi',
     bio_stat_4_desc: settings?.bio_stat_4_desc || settings?.bio_info_stat_4_desc || 'Kecenderungan populasi satwa tetap stabil/meningkat.',
+
+    // 4 Kartu Metrik Indeks Kehati (/biodiversity/kehati-indeks)
+    bio_data_stat_1_badge: settings?.bio_data_stat_1_badge || "H' > 3.0",
+    bio_data_stat_1_title: settings?.bio_data_stat_1_title || 'Indeks Shannon-Wiener (Flora)',
+    bio_data_stat_1_value: settings?.bio_data_stat_1_value || '3.42',
+    bio_data_stat_1_desc: settings?.bio_data_stat_1_desc || 'Kategori Keanekaragaman Tinggi (Sangat Baik)',
+
+    bio_data_stat_2_badge: settings?.bio_data_stat_2_badge || "H' > 3.0",
+    bio_data_stat_2_title: settings?.bio_data_stat_2_title || 'Indeks Shannon-Wiener (Fauna)',
+    bio_data_stat_2_value: settings?.bio_data_stat_2_value || '3.12',
+    bio_data_stat_2_desc: settings?.bio_data_stat_2_desc || 'Keanekaragaman fauna pesisir terkelola stabil',
+
+    bio_data_stat_3_badge: settings?.bio_data_stat_3_badge || 'E > 0.75',
+    bio_data_stat_3_title: settings?.bio_data_stat_3_title || 'Indeks Kemerataan (E)',
+    bio_data_stat_3_value: settings?.bio_data_stat_3_value || '0.94',
+    bio_data_stat_3_desc: settings?.bio_data_stat_3_desc || 'Penyebaran antar spesies sangat merata',
+
+    bio_data_stat_4_badge: settings?.bio_data_stat_4_badge || 'D < 0.15',
+    bio_data_stat_4_title: settings?.bio_data_stat_4_title || 'Indeks Dominansi (D)',
+    bio_data_stat_4_value: settings?.bio_data_stat_4_value || '0.06',
+    bio_data_stat_4_desc: settings?.bio_data_stat_4_desc || 'Tidak ada spesies yang mendominasi secara ekstrem',
     
     // Bio Data Graphic Fields
     bio_data_chart1_title: settings?.bio_data_chart1_title || 'Grafik Kecenderungan Peningkatan Absolut (2022 – 2026)',
@@ -567,6 +588,242 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1">Deskripsi Singkat</label>
                       <textarea value={stats.bio_stat_4_desc} onChange={e => handleStatChange('bio_stat_4_desc', e.target.value)} rows={2} className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg px-3 py-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bagian 2.5: 4 Kartu Metrik Indeks Kehati (Halaman Data Indeks /biodiversity/kehati-indeks) */}
+              <div className="space-y-4 pt-6 border-t-2 border-emerald-500/20 bg-emerald-50/30 p-5 rounded-3xl border">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-100 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                      <h3 className="text-sm font-bold text-slate-900 font-heading">
+                        4 Kartu Metrik Indeks Kehati (Shannon-Wiener, Kemerataan & Dominansi)
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Kartu statistik ini tampil di halaman <span className="font-semibold text-emerald-700">Data Indeks Keanekaragaman Hayati (/biodiversity/kehati-indeks)</span>.
+                    </p>
+                  </div>
+                  <a
+                    href="/biodiversity/kehati-indeks"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-emerald-50 text-emerald-700 rounded-xl font-bold text-xs border border-emerald-300 shadow-sm transition-colors shrink-0"
+                  >
+                    <span>Lihat di Web</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {/* Card 1: Flora */}
+                  <div className="p-4 border-2 border-emerald-200/80 rounded-2xl bg-white space-y-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="font-bold text-emerald-800 text-xs">Kartu 1: Flora</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+                        {stats.bio_data_stat_1_badge || "H' > 3.0"}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Judul Kartu</label>
+                      <input
+                        type="text"
+                        value={stats.bio_data_stat_1_title}
+                        onChange={e => handleStatChange('bio_data_stat_1_title', e.target.value)}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Indeks Shannon-Wiener (Flora)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Nilai / Angka</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_1_value}
+                          onChange={e => handleStatChange('bio_data_stat_1_value', e.target.value)}
+                          className="w-full bg-slate-50 text-emerald-600 font-bold border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:bg-white"
+                          placeholder="3.42"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Badge Target</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_1_badge}
+                          onChange={e => handleStatChange('bio_data_stat_1_badge', e.target.value)}
+                          className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                          placeholder="H' > 3.0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Keterangan / Kategori</label>
+                      <textarea
+                        value={stats.bio_data_stat_1_desc}
+                        onChange={e => handleStatChange('bio_data_stat_1_desc', e.target.value)}
+                        rows={2}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Kategori Keanekaragaman Tinggi (Sangat Baik)"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 2: Fauna */}
+                  <div className="p-4 border-2 border-sky-200/80 rounded-2xl bg-white space-y-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="font-bold text-sky-800 text-xs">Kartu 2: Fauna</span>
+                      <span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-[10px] font-bold">
+                        {stats.bio_data_stat_2_badge || "H' > 3.0"}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Judul Kartu</label>
+                      <input
+                        type="text"
+                        value={stats.bio_data_stat_2_title}
+                        onChange={e => handleStatChange('bio_data_stat_2_title', e.target.value)}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Indeks Shannon-Wiener (Fauna)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Nilai / Angka</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_2_value}
+                          onChange={e => handleStatChange('bio_data_stat_2_value', e.target.value)}
+                          className="w-full bg-slate-50 text-sky-600 font-bold border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:bg-white"
+                          placeholder="3.12"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Badge Target</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_2_badge}
+                          onChange={e => handleStatChange('bio_data_stat_2_badge', e.target.value)}
+                          className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                          placeholder="H' > 3.0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Keterangan / Kategori</label>
+                      <textarea
+                        value={stats.bio_data_stat_2_desc}
+                        onChange={e => handleStatChange('bio_data_stat_2_desc', e.target.value)}
+                        rows={2}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Keanekaragaman fauna pesisir terkelola stabil"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 3: Kemerataan */}
+                  <div className="p-4 border-2 border-amber-200/80 rounded-2xl bg-white space-y-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="font-bold text-amber-800 text-xs">Kartu 3: Kemerataan (E)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">
+                        {stats.bio_data_stat_3_badge || "E > 0.75"}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Judul Kartu</label>
+                      <input
+                        type="text"
+                        value={stats.bio_data_stat_3_title}
+                        onChange={e => handleStatChange('bio_data_stat_3_title', e.target.value)}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Indeks Kemerataan (E)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Nilai / Angka</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_3_value}
+                          onChange={e => handleStatChange('bio_data_stat_3_value', e.target.value)}
+                          className="w-full bg-slate-50 text-amber-500 font-bold border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:bg-white"
+                          placeholder="0.94"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Badge Target</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_3_badge}
+                          onChange={e => handleStatChange('bio_data_stat_3_badge', e.target.value)}
+                          className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                          placeholder="E > 0.75"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Keterangan / Kategori</label>
+                      <textarea
+                        value={stats.bio_data_stat_3_desc}
+                        onChange={e => handleStatChange('bio_data_stat_3_desc', e.target.value)}
+                        rows={2}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Penyebaran antar spesies sangat merata"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 4: Dominansi */}
+                  <div className="p-4 border-2 border-indigo-200/80 rounded-2xl bg-white space-y-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="font-bold text-indigo-800 text-xs">Kartu 4: Dominansi (D)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold">
+                        {stats.bio_data_stat_4_badge || "D < 0.15"}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Judul Kartu</label>
+                      <input
+                        type="text"
+                        value={stats.bio_data_stat_4_title}
+                        onChange={e => handleStatChange('bio_data_stat_4_title', e.target.value)}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Indeks Dominansi (D)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Nilai / Angka</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_4_value}
+                          onChange={e => handleStatChange('bio_data_stat_4_value', e.target.value)}
+                          className="w-full bg-slate-50 text-indigo-600 font-bold border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:bg-white"
+                          placeholder="0.06"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">Badge Target</label>
+                        <input
+                          type="text"
+                          value={stats.bio_data_stat_4_badge}
+                          onChange={e => handleStatChange('bio_data_stat_4_badge', e.target.value)}
+                          className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                          placeholder="D < 0.15"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Keterangan / Kategori</label>
+                      <textarea
+                        value={stats.bio_data_stat_4_desc}
+                        onChange={e => handleStatChange('bio_data_stat_4_desc', e.target.value)}
+                        rows={2}
+                        className="w-full bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:bg-white"
+                        placeholder="Tidak ada spesies yang mendominasi secara ekstrem"
+                      />
                     </div>
                   </div>
                 </div>

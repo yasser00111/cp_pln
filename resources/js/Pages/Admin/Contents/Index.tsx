@@ -931,6 +931,28 @@ export default function AdminContentIndex({ contents }: Props) {
           </div>
 
           <div className="space-y-6">
+            {(selectedCategory === 'biodiversity' || selectedCategory === 'all') && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold">PANDUAN ADMIN</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-emerald-950 font-heading">
+                      Ingin Mengedit 4 Kartu Metrik Indeks Kehati (Shannon-Wiener Flora/Fauna, Kemerataan E, Dominansi D) atau Import Excel?
+                    </h4>
+                  </div>
+                  <p className="text-xs text-emerald-800">
+                    Data angka nilai, target badge, serta grafik indeks dikelola secara khusus dengan formulir interaktif dan import Excel di menu <strong>Kelola Keanekaragaman Hayati</strong>.
+                  </p>
+                </div>
+                <a
+                  href="/admin/biodiversity"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition-colors whitespace-nowrap self-start sm:self-auto cursor-pointer"
+                >
+                  <span>Buka Kelola Kehati ↗</span>
+                </a>
+              </div>
+            )}
+
             {filteredItems.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3">
                 <FileText className="w-10 h-10 text-slate-300 mx-auto" />
