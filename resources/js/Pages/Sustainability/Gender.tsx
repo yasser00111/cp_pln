@@ -76,13 +76,13 @@ export default function GenderMainstreaming({ srikandis }: Props) {
                     className="p-6 sm:p-8 lg:p-10 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300"
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                      {/* Sisi Foto Srikandi (Hanya Foto Bersih Tanpa Opsi Perbesar) */}
-                      <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : 'lg:order-2'} w-full`}>
-                        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[340px] rounded-2xl overflow-hidden bg-pink-50 shadow-md border border-pink-100">
+                      {/* Sisi Foto Srikandi (Diperbesar Vertikal & Proporsional Sesuai Contoh) */}
+                      <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : 'lg:order-2'} w-full flex justify-center items-center`}>
+                        <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] max-h-[560px] rounded-3xl overflow-hidden bg-gradient-to-b from-pink-50/50 to-white shadow-md border border-pink-100">
                           <img
                             src={photoUrl}
                             alt={srikandi.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-top"
                           />
                         </div>
                       </div>
