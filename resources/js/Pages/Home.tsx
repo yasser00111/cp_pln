@@ -82,7 +82,11 @@ export default function Home({
             <div className="lg:col-span-6 relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 group">
                 <img
-                  src={globalCms?.home_profile_image?.body_text || "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1000&q=80"}
+                  src={
+                    globalCms?.home_profile_image?.image_url
+                      ? `/storage/${globalCms.home_profile_image.image_url}`
+                      : (globalCms?.home_profile_image?.body_text || "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1000&q=80")
+                  }
                   alt="Area Pembangkit UBP Barru"
                   className="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-700"
                 />

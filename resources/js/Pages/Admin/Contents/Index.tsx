@@ -42,6 +42,7 @@ interface SectionMeta {
   pageUrl: string;
   category: 'home' | 'profile' | 'operational' | 'sustainability' | 'biodiversity' | 'media' | 'contact';
   helpText: string;
+  hasImage?: boolean;
 }
 
 const SECTION_REGISTRY: Record<string, Omit<SectionMeta, 'key'>> = {
@@ -59,6 +60,7 @@ const SECTION_REGISTRY: Record<string, Omit<SectionMeta, 'key'>> = {
     pageUrl: '/',
     category: 'home',
     helpText: 'Foto pembangkit dan pengantar profil di beranda.',
+    hasImage: true,
   },
   home_profile_year: {
     label: 'Tahun Beroperasi & Kapasitas Singkat',
@@ -1025,6 +1027,7 @@ export default function AdminContentIndex({ contents = {} }: Props) {
                 const pageName = meta?.page || 'Halaman Tambahan';
                 const pageUrl = meta?.pageUrl || '/';
                 const helpText = meta?.helpText || 'Teks statis di halaman website.';
+                const supportsImage = Boolean(meta?.hasImage || item.section_key.includes('_image') || item.section_key.includes('_hero') || item.section_key.includes('_banner'));
 
                 return (
                   <div
@@ -1096,60 +1099,83 @@ export default function AdminContentIndex({ contents = {} }: Props) {
                         />
                       </div>
 
-                      {/* Gambar Banner / Foto Terkait (Opsional) */}
-                      <div className="pt-2">
-                        <label className="block font-bold text-slate-700 uppercase tracking-wider text-[11px] mb-1.5">
-                          Gambar / Banner Ilustrasi (Opsional)
-                        </label>
-                        
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                          {item.image_url ? (
-                            <div className="w-20 h-14 rounded-xl overflow-hidden bg-white border border-slate-300 shrink-0 relative shadow-2xs">
-                              <img
-                                src={`/storage/${item.image_url}`}
-                                alt={item.title || item.section_key}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-20 h-14 rounded-xl bg-slate-200 flex items-center justify-center text-slate-400 shrink-0">
-                              <ImageIcon className="w-5 h-5" />
-                            </div>
-                          )}
-
-                          <div className="flex-1 space-y-1">
+                      {/* Gambar Banner / Foto Terkait (Hanya tampil jika bagian mendukung gambar atau sudah ada gambar terunggah) */}
+                      {supportsImage ? (
+                        <div className="pt-2">
+                          <label className="block font-bold text-slate-700 uppercase tracking-wider text-[11px] mb-1.5">
+                            Gambar / Banner Ilustrasi (Opsional)
+                          </label>
+                          
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                             {item.image_url ? (
-                              <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>Foto saat ini sudah terpasang. Unggah file baru untuk menggantinya.</span>
-                              </p>
+                              <div className="w-20 h-14 rounded-xl overflow-hidden bg-white border border-slate-300 shrink-0 relative shadow-2xs">
+                                <img
+                                  src={`/storage/${item.image_url}`}
+                                  alt={item.title || item.section_key}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
                             ) : (
-                              <p className="text-[11px] text-slate-500">
-                                Belum ada foto khusus. Anda dapat mengunggah file JPG, PNG, atau WebP.
-                              </p>
+                              <div className="w-20 h-14 rounded-xl bg-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                                <ImageIcon className="w-5 h-5" />
+                              </div>
                             )}
 
-                            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-slate-700 font-bold hover:bg-slate-100 transition-colors shadow-2xs text-[11px]">
-                              <Upload className="w-3.5 h-3.5 text-[#008ba3]" />
-                              <span>Pilih File Gambar Baru</span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0] || null;
-                                  handleChange(item.section_key, 'imageFile', file);
-                                }}
-                                className="hidden"
-                              />
-                            </label>
-                            {item.imageFile && (
-                              <span className="text-[11px] text-emerald-600 font-bold ml-2">
-                                File dipilih: {item.imageFile.name}
-                              </span>
-                            )}
+                            <div className="flex-1 space-y-1">
+                              {item.image_url ? (
+                                <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Foto saat ini sudah terpasang. Unggah file baru untuk menggantinya.</span>
+                                </p>
+                              ) : (
+                                <p className="text-[11px] text-slate-500">
+                                  Belum ada foto khusus. Anda dapat mengunggah file JPG, PNG, atau WebP.
+                                </p>
+                              )}
+
+                              <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-slate-700 font-bold hover:bg-slate-100 transition-colors shadow-2xs text-[11px]">
+                                <Upload className="w-3.5 h-3.5 text-[#008ba3]" />
+                                <span>Pilih File Gambar Baru</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+                                    handleChange(item.section_key, 'imageFile', file);
+                                  }}
+                                  className="hidden"
+                                />
+                              </label>
+                              {item.imageFile && (
+                                <span className="text-[11px] text-emerald-600 font-bold ml-2">
+                                  File dipilih: {item.imageFile.name}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : item.image_url ? (
+                        <div className="pt-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold shrink-0">INFO TATA LETAK</span>
+                              <span className="text-slate-700">
+                                Bagian ini adalah teks murni (Badge/Judul) dan tidak menampilkan gambar di tata letak halaman web.
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleChange(item.section_key, 'image_url', null);
+                                handleChange(item.section_key, 'imageFile', null);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-xl text-amber-800 font-bold text-[11px] transition-colors cursor-pointer shadow-2xs shrink-0 self-start sm:self-auto"
+                            >
+                              <span>Hapus File Gambar Ini</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
 
                     </div>
                   </div>

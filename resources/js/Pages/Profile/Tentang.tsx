@@ -58,7 +58,13 @@ export default function Tentang({ about, cms }: Props) {
             <div className="lg:col-span-6">
               <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1000&q=80"
+                  src={
+                    globalCms?.profile_tentang_image?.image_url
+                      ? `/storage/${globalCms.profile_tentang_image.image_url}`
+                      : (globalCms?.profile_tentang_description?.image_url
+                          ? `/storage/${globalCms.profile_tentang_description.image_url}`
+                          : "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1000&q=80")
+                  }
                   alt="Area Pembangkitan Barru"
                   className="w-full h-80 object-cover"
                 />
