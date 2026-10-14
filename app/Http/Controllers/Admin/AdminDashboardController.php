@@ -652,6 +652,7 @@ class AdminDashboardController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            File::ensureDirectoryExists(public_path('uploads/documents'));
             $file->move(public_path('uploads/documents'), $filename);
 
             $data['file_path'] = '/uploads/documents/' . $filename;
@@ -855,6 +856,7 @@ class AdminDashboardController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $filename = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
+            File::ensureDirectoryExists(public_path('uploads/documents'));
             $file->move(public_path('uploads/documents'), $filename);
             
             $data['file_path'] = '/uploads/documents/' . $filename;

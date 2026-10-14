@@ -126,10 +126,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // Biodiversity Species & Reports CRUD
     Route::get('/biodiversity', [AdminDashboardController::class, 'biodiversityIndex'])->name('biodiversity');
     Route::post('/biodiversity', [AdminDashboardController::class, 'storeSpecies'])->name('biodiversity.store');
-    Route::post('/biodiversity/{species}', [AdminDashboardController::class, 'updateSpecies'])->name('biodiversity.update');
-    Route::delete('/biodiversity/{species}', [AdminDashboardController::class, 'deleteSpecies'])->name('biodiversity.delete');
     Route::post('/biodiversity/reports', [AdminDashboardController::class, 'storeBiodiversityReport'])->name('biodiversity.reports.store');
     Route::delete('/biodiversity/reports/{document}', [AdminDashboardController::class, 'deleteBiodiversityReport'])->name('biodiversity.reports.delete');
+    Route::post('/biodiversity/{species}', [AdminDashboardController::class, 'updateSpecies'])->name('biodiversity.update');
+    Route::delete('/biodiversity/{species}', [AdminDashboardController::class, 'deleteSpecies'])->name('biodiversity.delete');
 
     // Srikandi CRUD
     Route::get('/srikandi', [AdminDashboardController::class, 'srikandiIndex'])->name('srikandi');
