@@ -30,6 +30,8 @@ Route::prefix('profile')->name('profile.')->group(function () {
 // Shortcuts requested in specs
 Route::get('/csr', [SustainabilityController::class, 'csr'])->name('csr');
 Route::get('/awards', [ProfileController::class, 'penghargaan'])->name('awards');
+Route::get('/penghargaan-dan-sertifikasi', [ProfileController::class, 'penghargaan'])->name('penghargaan-dan-sertifikasi');
+Route::get('/awards-and-certifications', [ProfileController::class, 'penghargaan'])->name('awards-and-certifications');
 
 // 3. Operational Module
 Route::prefix('operasional')->name('operasional.')->group(function () {

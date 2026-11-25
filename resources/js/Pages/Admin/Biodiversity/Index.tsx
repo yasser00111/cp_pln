@@ -769,14 +769,22 @@ export default function AdminBiodiversityIndex({ species, reports = [] }: Props)
 
     setIsUploadingReport(true);
     router.post('/admin/biodiversity/reports', formData, {
+      forceFormData: true,
       onSuccess: () => {
         setReportTitle('');
         setReportYear(new Date().getFullYear().toString());
         setReportFile(null);
         setIsUploadingReport(false);
+        alert('✓ Laporan konservasi PDF berhasil diunggah dan disimpan!');
       },
-      onError: () => {
+      onError: (errors: any) => {
         setIsUploadingReport(false);
+        const errList = Object.values(errors || {}).flat();
+        alert(
+          errList.length > 0
+            ? 'Gagal mengunggah laporan:\n- ' + errList.join('\n- ')
+            : 'Gagal mengunggah file. Pastikan ukuran file tidak melebihi batas upload server (Nginx/PHP).'
+        );
       }
     });
   };

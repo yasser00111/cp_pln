@@ -666,7 +666,13 @@ class AdminDashboardController extends Controller
             $data['file_size'] = round($bytes, 1) . ' ' . $units[$pow];
         }
 
-        Document::create($data);
+        $document = Document::create($data);
+
+        // Perbarui juga link laporan pada program kehati utama agar langsung aktif di halaman depan
+        $program = BiodiversityProgram::first();
+        if ($program && !empty($data['file_path'])) {
+            $program->update(['pdf_report' => $data['file_path']]);
+        }
 
         return redirect()->back()->with('success', 'Laporan konservasi berhasil diunggah!');
     }

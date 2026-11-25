@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
 import SectionTitle from '@/Components/SectionTitle';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { BiodiversitySpecies, BiodiversityProgram } from '@/Types';
-import { Leaf, Download, Search, Filter, ShieldCheck, MapPin, Calendar, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Leaf, Download, Search, Filter, ShieldCheck, MapPin, Calendar, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
+
+interface ReportItem {
+  id: string;
+  title: string;
+  category: string;
+  year: string;
+  file_path: string;
+  file_size: string;
+}
 
 interface Props {
   species: BiodiversitySpecies[];
   program: BiodiversityProgram;
+  reports?: ReportItem[];
 }
 
-export default function Index({ species, program }: Props) {
+export default function Index({ species, program, reports = [] }: Props) {
   const { settings } = usePage<any>().props;
   const [activeTab, setActiveTab] = useState<'All' | 'Flora' | 'Fauna'>('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -178,21 +188,34 @@ export default function Index({ species, program }: Props) {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-6">
                 <div>
                   <span className="text-[10px] font-extrabold tracking-widest text-emerald-400 uppercase">OFFICIAL REPORT</span>
-                  <h3 className="text-xl font-bold text-slate-900 font-heading mt-1">{program.title}</h3>
+                  <h3 className="text-xl font-bold text-white font-heading mt-1">{reports[0]?.title || program.title}</h3>
+                  {reports[0] && (
+                    <span className="text-xs text-emerald-400 font-semibold">Tahun {reports[0].year} • {reports[0].file_size}</span>
+                  )}
                 </div>
-                {program.pdf_report && (
-                  <a
-                    href={program.pdf_report}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+                <div className="flex flex-wrap items-center gap-3">
+                  {(reports[0]?.file_path || program.pdf_report) && (
+                    <a
+                      href={reports[0]?.file_path || program.pdf_report}
+                      target="_blank"
+                      rel="noreferrer"
+                      download
+                      className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download Laporan PDF</span>
+                    </a>
+                  )}
+                  <Link
+                    href="/biodiversity/report"
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 transition-all"
                   >
-                    <Download className="w-4 h-4" />
-                    <span>Download Laporan PDF</span>
-                  </a>
-                )}
+                    <span>Daftar Semua Laporan ({reports.length})</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{program.description}</p>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{program.description}</p>
             </div>
           )}
 

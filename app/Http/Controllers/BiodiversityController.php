@@ -14,10 +14,12 @@ class BiodiversityController extends Controller
     {
         $species = BiodiversitySpecies::all();
         $program = BiodiversityProgram::first();
+        $reports = Document::where('category', 'Laporan Konservasi')->orderBy('year', 'desc')->get();
 
         return Inertia::render('Biodiversity/Index', [
             'species' => $species,
             'program' => $program,
+            'reports' => $reports,
         ]);
     }
     public function info(): Response
